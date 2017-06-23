@@ -1,8 +1,11 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.0.0-beta1",
 
   "dependencies": {
-    "NETStandard.Library": "1.6.0"
+    "Microsoft.AspNetCore.Authentication.Cookies": "1.1.2",
+    "Microsoft.AspNetCore.Owin": "1.1.2",
+    "NETStandard.Library": "1.6.1",
+    "Wilcommerce.Core.Common": "1.0.0-beta4"
   },
 
   "frameworks": {
