@@ -28,8 +28,6 @@ namespace Wilcommerce.Auth.Services
                     .Where(u => u.IsActive && u.DisabledOn == null)
                     .FirstOrDefault(u => u.Email == email);
 
-                
-
                 if (user == null)
                 {
                     throw new InvalidOperationException($"User {email} not found");
@@ -46,7 +44,14 @@ namespace Wilcommerce.Auth.Services
 
         public Task SignOut()
         {
-            throw new NotImplementedException();
+            try
+            {
+                return AuthenticationManager.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         #region Protected methods
