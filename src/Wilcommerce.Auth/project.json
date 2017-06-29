@@ -5,7 +5,8 @@
     "Microsoft.AspNetCore.Authentication.Cookies": "1.1.2",
     "Microsoft.AspNetCore.Owin": "1.1.2",
     "NETStandard.Library": "1.6.1",
-    "Wilcommerce.Core.Common": "1.0.0-beta4"
+    "Wilcommerce.Core.Common": "1.0.0-beta4",
+    "System.Linq.Queryable": "4.3.0"
   },
 
   "frameworks": {
