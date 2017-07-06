@@ -38,21 +38,11 @@ namespace Wilcommerce.Auth.Models
         #endregion
 
         #region Factory
-        public static UserToken Create(User user, string tokenType, string token, DateTime expirationDate)
+        public static UserToken PasswordRecovery(User user, string token, DateTime expirationDate)
         {
             if (user == null)
             {
                 throw new ArgumentNullException("user");
-            }
-
-            if (string.IsNullOrEmpty(tokenType))
-            {
-                throw new ArgumentNullException("tokenType");
-            }
-
-            if (!TokenTypes.IsValidType(tokenType))
-            {
-                throw new ArgumentException("Invalid value", "tokenType");
             }
 
             if (string.IsNullOrEmpty(token))
@@ -69,7 +59,38 @@ namespace Wilcommerce.Auth.Models
             var userToken = new UserToken
             {
                 UserId = user.Id,
-                TokenType = tokenType,
+                TokenType = TokenTypes.PasswordRecovery,
+                Token = token,
+                CreationDate = now,
+                ExpirationDate = expirationDate,
+                IsExpired = false
+            };
+
+            return userToken;
+        }
+
+        public static UserToken Registration(User user, string token, DateTime expirationDate)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ArgumentNullException("token");
+            }
+
+            var now = DateTime.Now;
+            if (expirationDate < now)
+            {
+                throw new ArgumentException("Invalid expiration date", "expirationDate");
+            }
+
+            var userToken = new UserToken
+            {
+                UserId = user.Id,
+                TokenType = TokenTypes.Registration,
                 Token = token,
                 CreationDate = now,
                 ExpirationDate = expirationDate,
