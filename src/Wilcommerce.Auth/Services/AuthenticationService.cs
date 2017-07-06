@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
 using Wilcommerce.Core.Common.Domain.ReadModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace Wilcommerce.Auth.Services
 {
@@ -14,10 +15,13 @@ namespace Wilcommerce.Auth.Services
 
         public ICommonDatabase CommonDatabase { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase)
+        public IPasswordHasher<User> PasswordHasher { get; }
+
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
+            PasswordHasher = passwordHasher;
         }
 
         public Task SignIn(string email, string password)
@@ -31,6 +35,11 @@ namespace Wilcommerce.Auth.Services
                 if (user == null)
                 {
                     throw new InvalidOperationException($"User {email} not found");
+                }
+
+                if (!IsPasswordValid(user, password))
+                {
+                    throw new InvalidOperationException("Bad credentials");
                 }
 
                 var principal = CreatePrincipalForUser(user);
@@ -55,6 +64,19 @@ namespace Wilcommerce.Auth.Services
         }
 
         #region Protected methods
+        protected virtual bool IsPasswordValid(User user, string password)
+        {
+            try
+            {
+                var result = PasswordHasher.VerifyHashedPassword(user, user.Password, password);
+                return result != PasswordVerificationResult.Failed;
+            }
+            catch 
+            {
+                throw;
+            }
+        }
+
         protected virtual ClaimsPrincipal CreatePrincipalForUser(User user)
         {
             try
@@ -64,6 +86,7 @@ namespace Wilcommerce.Auth.Services
                 identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
                 identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
                 identity.AddClaim(new Claim(ClaimTypes.Role, GetRoleStringForUser(user)));
+                identity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
 
                 return new ClaimsPrincipal(identity);
             }

@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-beta1",
 
   "dependencies": {
@@ -6,7 +6,8 @@
     "Microsoft.AspNetCore.Owin": "1.1.2",
     "NETStandard.Library": "1.6.1",
     "Wilcommerce.Core.Common": "1.0.0-beta4",
-    "System.Linq.Queryable": "4.3.0"
+    "System.Linq.Queryable": "4.3.0",
+    "Microsoft.AspNetCore.Identity": "1.0.0"
   },
 
   "frameworks": {
