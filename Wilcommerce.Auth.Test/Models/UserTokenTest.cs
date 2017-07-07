@@ -1,5 +1,6 @@
 ﻿using System;
 using Wilcommerce.Auth.Models;
+using Wilcommerce.Core.Common.Domain.Models;
 using Xunit;
 
 namespace Wilcommerce.Auth.Test.Models
@@ -11,6 +12,77 @@ namespace Wilcommerce.Auth.Test.Models
         {
             var ex = Assert.Throws<ArgumentNullException>(() => UserToken.PasswordRecovery(null, "", DateTime.Now));
             Assert.Equal("user", ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void PasswordRecovery_Should_Throw_ArgumentNullException_If_Token_IsEmpty(string value)
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+
+            var ex = Assert.Throws<ArgumentNullException>(() => UserToken.PasswordRecovery(user, value, DateTime.Now));
+            Assert.Equal("token", ex.ParamName);
+        }
+
+        [Fact]
+        public void PasswordRecovery_Should_Throw_ArgumentException_If_ExpirationDate_IsPreviousThan_Now()
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+            string token = "token";
+
+            var ex = Assert.Throws<ArgumentException>(() => UserToken.PasswordRecovery(user, token, DateTime.Now.AddDays(-1)));
+            Assert.Equal("expirationDate", ex.ParamName);
+        }
+
+        [Fact]
+        public void PasswordRecovery_Should_Create_A_PasswordRecovery_Token()
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+            string token = "token";
+            var expirationDate = DateTime.Now.AddDays(10);
+
+            var userToken = UserToken.PasswordRecovery(user, token, expirationDate);
+            Assert.Equal(TokenTypes.PasswordRecovery, userToken.TokenType);
+        }
+
+        [Fact]
+        public void Registration_Should_Throw_ArgumentNullException_If_User_IsNull()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => UserToken.Registration(null, "", DateTime.Now));
+            Assert.Equal("user", ex.ParamName);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void Registration_Should_Throw_ArgumentNullException_If_Token_IsEmpty(string value)
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+
+            var ex = Assert.Throws<ArgumentNullException>(() => UserToken.Registration(user, value, DateTime.Now));
+            Assert.Equal("token", ex.ParamName);
+        }
+
+        [Fact]
+        public void Registration_Should_Throw_ArgumentException_If_ExpirationDate_IsPreviousThan_Now()
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+            string token = "token";
+
+            var ex = Assert.Throws<ArgumentException>(() => UserToken.Registration(user, token, DateTime.Now.AddDays(-1)));
+            Assert.Equal("expirationDate", ex.ParamName);
+        }
+
+        [Fact]
+        public void Registration_Should_Create_A_Registration_Token()
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+            string token = "token";
+            var expirationDate = DateTime.Now.AddDays(10);
+
+            var userToken = UserToken.Registration(user, token, expirationDate);
+            Assert.Equal(TokenTypes.Registration, userToken.TokenType);
         }
     }
 }
