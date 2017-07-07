@@ -84,5 +84,33 @@ namespace Wilcommerce.Auth.Test.Models
             var userToken = UserToken.Registration(user, token, expirationDate);
             Assert.Equal(TokenTypes.Registration, userToken.TokenType);
         }
+
+        [Fact]
+        public void SetAsExpired_Should_Throw_InvalidOperationException_If_Token_Is_Already_Expired()
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+            string token = "token";
+            var expirationDate = DateTime.Now.AddDays(10);
+
+            var userToken = UserToken.Registration(user, token, expirationDate);
+            userToken.SetAsExpired();
+
+            var ex = Assert.Throws<InvalidOperationException>(() => userToken.SetAsExpired());
+            Assert.Equal($"Token already expired on {userToken.ExpirationDate.ToString()}", ex.Message);
+        }
+
+        [Fact]
+        public void SetAsExpired_Should_Set_ExpirationDate_To_Today()
+        {
+            var user = User.CreateAsAdministrator("Admin", "admin@admin.com", "password");
+            string token = "token";
+            var expirationDate = DateTime.Now.AddDays(10);
+
+            var userToken = UserToken.Registration(user, token, expirationDate);
+            userToken.SetAsExpired();
+
+            Assert.Equal(true, userToken.IsExpired);
+            Assert.Equal(DateTime.Now.ToString("yyyy-MM-dd"), userToken.ExpirationDate.ToString("yyyy-MM-dd"));
+        }
     }
 }
