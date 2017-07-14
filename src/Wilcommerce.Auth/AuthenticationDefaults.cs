@@ -11,5 +11,7 @@ namespace Wilcommerce.Auth
         public static string AdministratorRole => "Administrator";
 
         public static string CookiePrefix => ".Wilcommerce.";
+
+        public static int ExpirationDays => 1;
     }
 }

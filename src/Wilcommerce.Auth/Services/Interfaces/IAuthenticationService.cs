@@ -7,5 +7,7 @@ namespace Wilcommerce.Auth.Services.Interfaces
         Task SignIn(string username, string password);
 
         Task SignOut();
+
+        Task RecoverPassword(string email);
     }
 }

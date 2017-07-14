@@ -63,6 +63,11 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        public Task RecoverPassword(string email)
+        {
+            throw new NotImplementedException();
+        }
+
         #region Protected methods
         protected virtual bool IsPasswordValid(User user, string password)
         {
