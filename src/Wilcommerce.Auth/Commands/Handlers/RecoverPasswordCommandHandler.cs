@@ -21,8 +21,7 @@ namespace Wilcommerce.Auth.Commands.Handlers
         {
             try
             {
-                var token = string.Empty;
-                var userToken = UserToken.PasswordRecovery(command.UserInfo, token, DateTime.Now.AddDays(AuthenticationDefaults.ExpirationDays));
+                var userToken = UserToken.PasswordRecovery(command.UserInfo, command.Token, DateTime.Now.AddDays(AuthenticationDefaults.ExpirationDays));
 
                 Repository.Add(userToken);
                 await Repository.SaveChangesAsync();

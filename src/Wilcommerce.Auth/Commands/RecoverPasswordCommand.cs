@@ -5,6 +5,14 @@ namespace Wilcommerce.Auth.Commands
 {
     public class RecoverPasswordCommand : ICommand
     {
-        public User UserInfo { get; set; }
+        public User UserInfo { get; }
+
+        public string Token { get; }
+
+        public RecoverPasswordCommand(User user, string token)
+        {
+            UserInfo = user;
+            Token = token;
+        }
     }
 }

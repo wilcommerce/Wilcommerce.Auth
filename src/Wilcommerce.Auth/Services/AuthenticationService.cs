@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Wilcommerce.Auth.Services.Interfaces;
 using Wilcommerce.Auth.Models;
 using Wilcommerce.Auth.Repository;
+using Wilcommerce.Auth.Commands.Handlers.Interfaces;
+using Wilcommerce.Auth.Commands;
 
 namespace Wilcommerce.Auth.Services
 {
@@ -22,15 +24,15 @@ namespace Wilcommerce.Auth.Services
 
         public ITokenGenerator TokenGenerator { get; }
 
-        public IRepository Repository { get; }
+        public IRecoverPasswordCommandHandler RecoverPasswordHandler { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRepository repository)
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
             TokenGenerator = tokenGenerator;
-            Repository = repository;
+            RecoverPasswordHandler = recoverPasswordHandler;
         }
 
         public Task SignIn(string email, string password)
@@ -72,7 +74,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        public async Task RecoverPassword(string email)
+        public Task RecoverPassword(string email)
         {
             try
             {
@@ -85,11 +87,8 @@ namespace Wilcommerce.Auth.Services
                     throw new InvalidOperationException($"User {email} not found");
                 }
 
-                string token = TokenGenerator.GenerateForUser(user);
-                var userToken = UserToken.PasswordRecovery(user, token, DateTime.Now.AddDays(1));
-
-                Repository.Add(userToken);
-                await Repository.SaveChangesAsync();
+                var command = new RecoverPasswordCommand(user, TokenGenerator.GenerateForUser(user));
+                return RecoverPasswordHandler.Handle(command);
             }
             catch 
             {
