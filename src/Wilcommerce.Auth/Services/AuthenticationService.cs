@@ -7,8 +7,6 @@ using Wilcommerce.Core.Common.Domain.Models;
 using Wilcommerce.Core.Common.Domain.ReadModels;
 using Microsoft.AspNetCore.Identity;
 using Wilcommerce.Auth.Services.Interfaces;
-using Wilcommerce.Auth.Models;
-using Wilcommerce.Auth.Repository;
 using Wilcommerce.Auth.Commands.Handlers.Interfaces;
 using Wilcommerce.Auth.Commands;
 
@@ -26,16 +24,19 @@ namespace Wilcommerce.Auth.Services
 
         public IRecoverPasswordCommandHandler RecoverPasswordHandler { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler)
+        public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
+
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
             TokenGenerator = tokenGenerator;
             RecoverPasswordHandler = recoverPasswordHandler;
+            ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
         }
 
-        public Task SignIn(string email, string password)
+        public Task SignIn(string email, string password, bool isPersistent)
         {
             try
             {
@@ -54,7 +55,10 @@ namespace Wilcommerce.Auth.Services
                 }
 
                 var principal = CreatePrincipalForUser(user);
-                return AuthenticationManager.SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal);
+                return AuthenticationManager.SignInAsync(
+                    AuthenticationDefaults.AuthenticationScheme, 
+                    principal, 
+                    new AuthenticationProperties { IsPersistent = isPersistent });
             }
             catch 
             {
@@ -89,6 +93,19 @@ namespace Wilcommerce.Auth.Services
 
                 var command = new RecoverPasswordCommand(user, TokenGenerator.GenerateForUser(user));
                 return RecoverPasswordHandler.Handle(command);
+            }
+            catch 
+            {
+                throw;
+            }
+        }
+
+        public Task ValidatePasswordRecovery(string token)
+        {
+            try
+            {
+                var command = new ValidatePasswordRecoveryCommand(token);
+                return ValidatePasswordRecoveryHandler.Handle(command);
             }
             catch 
             {
