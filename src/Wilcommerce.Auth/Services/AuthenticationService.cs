@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
 using Wilcommerce.Core.Common.Domain.ReadModels;
 using Microsoft.AspNetCore.Identity;
+using Wilcommerce.Auth.Services.Interfaces;
+using Wilcommerce.Auth.Models;
+using Wilcommerce.Auth.Repository;
 
 namespace Wilcommerce.Auth.Services
 {
-    public class AuthenticationService : Interfaces.IAuthenticationService
+    public class AuthenticationService : IAuthenticationService
     {
         public AuthenticationManager AuthenticationManager { get; }
 
@@ -17,11 +20,17 @@ namespace Wilcommerce.Auth.Services
 
         public IPasswordHasher<User> PasswordHasher { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher)
+        public ITokenGenerator TokenGenerator { get; }
+
+        public IRepository Repository { get; }
+
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRepository repository)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
+            TokenGenerator = tokenGenerator;
+            Repository = repository;
         }
 
         public Task SignIn(string email, string password)
@@ -63,9 +72,29 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        public Task RecoverPassword(string email)
+        public async Task RecoverPassword(string email)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = CommonDatabase.Users
+                    .Where(u => u.IsActive && u.DisabledOn == null)
+                    .FirstOrDefault(u => u.Email == email);
+
+                if (user == null)
+                {
+                    throw new InvalidOperationException($"User {email} not found");
+                }
+
+                string token = TokenGenerator.GenerateForUser(user);
+                var userToken = UserToken.PasswordRecovery(user, token, DateTime.Now.AddDays(1));
+
+                Repository.Add(userToken);
+                await Repository.SaveChangesAsync();
+            }
+            catch 
+            {
+                throw;
+            }
         }
 
         #region Protected methods
