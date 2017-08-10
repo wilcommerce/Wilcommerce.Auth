@@ -6,25 +6,59 @@ using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
 using Wilcommerce.Core.Common.Domain.ReadModels;
 using Microsoft.AspNetCore.Identity;
+using Wilcommerce.Auth.Services.Interfaces;
+using Wilcommerce.Auth.Commands.Handlers.Interfaces;
+using Wilcommerce.Auth.Commands;
 
 namespace Wilcommerce.Auth.Services
 {
-    public class AuthenticationService : Interfaces.IAuthenticationService
+    /// <summary>
+    /// Defines the implementations for the authentication actions
+    /// </summary>
+    public class AuthenticationService : IAuthenticationService
     {
+        /// <summary>
+        /// Get the OWIN Authentication manager
+        /// </summary>
         public AuthenticationManager AuthenticationManager { get; }
 
+        /// <summary>
+        /// Get the common context database
+        /// </summary>
         public ICommonDatabase CommonDatabase { get; }
 
+        /// <summary>
+        /// Get the password hasher service
+        /// </summary>
         public IPasswordHasher<User> PasswordHasher { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher)
+        /// <summary>
+        /// Get the token generator service
+        /// </summary>
+        public ITokenGenerator TokenGenerator { get; }
+
+        /// <summary>
+        /// Get the password recovery handler
+        /// </summary>
+        public IRecoverPasswordCommandHandler RecoverPasswordHandler { get; }
+
+        /// <summary>
+        /// Get the password recovery validation handler
+        /// </summary>
+        public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
+
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
+            TokenGenerator = tokenGenerator;
+            RecoverPasswordHandler = recoverPasswordHandler;
+            ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
         }
 
-        public Task SignIn(string email, string password)
+        /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
+        public Task SignIn(string email, string password, bool isPersistent)
         {
             try
             {
@@ -43,7 +77,10 @@ namespace Wilcommerce.Auth.Services
                 }
 
                 var principal = CreatePrincipalForUser(user);
-                return AuthenticationManager.SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal);
+                return AuthenticationManager.SignInAsync(
+                    AuthenticationDefaults.AuthenticationScheme, 
+                    principal, 
+                    new AuthenticationProperties { IsPersistent = isPersistent });
             }
             catch 
             {
@@ -51,6 +88,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <inheritdoc cref="IAuthenticationService.SignOut"/>
         public Task SignOut()
         {
             try
@@ -63,7 +101,50 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <inheritdoc cref="IAuthenticationService.RecoverPassword(string)"/>
+        public Task RecoverPassword(string email)
+        {
+            try
+            {
+                var user = CommonDatabase.Users
+                    .Where(u => u.IsActive && u.DisabledOn == null)
+                    .FirstOrDefault(u => u.Email == email);
+
+                if (user == null)
+                {
+                    throw new InvalidOperationException($"User {email} not found");
+                }
+
+                var command = new RecoverPasswordCommand(user, TokenGenerator.GenerateForUser(user));
+                return RecoverPasswordHandler.Handle(command);
+            }
+            catch 
+            {
+                throw;
+            }
+        }
+
+        /// <inheritdoc cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
+        public Task ValidatePasswordRecovery(string token)
+        {
+            try
+            {
+                var command = new ValidatePasswordRecoveryCommand(token);
+                return ValidatePasswordRecoveryHandler.Handle(command);
+            }
+            catch 
+            {
+                throw;
+            }
+        }
+
         #region Protected methods
+        /// <summary>
+        /// Check whether the password is valid
+        /// </summary>
+        /// <param name="user">The user instance</param>
+        /// <param name="password">The password to check</param>
+        /// <returns>true if the password is valid, false otherwise</returns>
         protected virtual bool IsPasswordValid(User user, string password)
         {
             try
@@ -77,6 +158,11 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <summary>
+        /// Create the claim principal for the user
+        /// </summary>
+        /// <param name="user">The user instance</param>
+        /// <returns>The claim principal</returns>
         protected virtual ClaimsPrincipal CreatePrincipalForUser(User user)
         {
             try
@@ -96,6 +182,11 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <summary>
+        /// Get the string representing the user's role
+        /// </summary>
+        /// <param name="user">The user instance</param>
+        /// <returns>The user's role as a string</returns>
         protected virtual string GetRoleStringForUser(User user)
         {
             var role = user.Role;
