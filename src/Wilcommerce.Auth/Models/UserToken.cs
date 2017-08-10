@@ -4,27 +4,54 @@ using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Models
 {
+    /// <summary>
+    /// Represents a token created for a specific user
+    /// </summary>
     public class UserToken : IAggregateRoot
     {
         public Guid Id { get; set; }
 
         #region Properties
+        /// <summary>
+        /// Get the related user
+        /// </summary>
         public virtual User User { get; protected set; }
 
+        /// <summary>
+        /// Get the related user id
+        /// </summary>
         public Guid UserId { get; protected set; }
 
+        /// <summary>
+        /// Get the token type
+        /// </summary>
         public string TokenType { get; protected set; }
 
+        /// <summary>
+        /// Get the token
+        /// </summary>
         public string Token { get; protected set; }
 
+        /// <summary>
+        /// Get the date and time of token creation
+        /// </summary>
         public DateTime CreationDate { get; protected set; }
 
+        /// <summary>
+        /// Get the date and time of token expiration
+        /// </summary>
         public DateTime ExpirationDate { get; protected set; }
 
+        /// <summary>
+        /// Get whether the token is expired
+        /// </summary>
         public bool IsExpired { get; protected set; }
         #endregion
 
         #region Public Methods
+        /// <summary>
+        /// Set the current token as expired
+        /// </summary>
         public virtual void SetAsExpired()
         {
             if (IsExpired)
@@ -38,6 +65,13 @@ namespace Wilcommerce.Auth.Models
         #endregion
 
         #region Factory
+        /// <summary>
+        /// Create a new password recovery token
+        /// </summary>
+        /// <param name="user">The user</param>
+        /// <param name="token">The token string</param>
+        /// <param name="expirationDate">The token expiration date</param>
+        /// <returns>The token created</returns>
         public static UserToken PasswordRecovery(User user, string token, DateTime expirationDate)
         {
             if (user == null)
@@ -69,6 +103,13 @@ namespace Wilcommerce.Auth.Models
             return userToken;
         }
 
+        /// <summary>
+        /// Create a new registration token
+        /// </summary>
+        /// <param name="user">The user</param>
+        /// <param name="token">The token string</param>
+        /// <param name="expirationDate">The token expiration date</param>
+        /// <returns>The token created</returns>
         public static UserToken Registration(User user, string token, DateTime expirationDate)
         {
             if (user == null)

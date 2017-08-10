@@ -12,18 +12,39 @@ using Wilcommerce.Auth.Commands;
 
 namespace Wilcommerce.Auth.Services
 {
+    /// <summary>
+    /// Defines the implementations for the authentication actions
+    /// </summary>
     public class AuthenticationService : IAuthenticationService
     {
+        /// <summary>
+        /// Get the OWIN Authentication manager
+        /// </summary>
         public AuthenticationManager AuthenticationManager { get; }
 
+        /// <summary>
+        /// Get the common context database
+        /// </summary>
         public ICommonDatabase CommonDatabase { get; }
 
+        /// <summary>
+        /// Get the password hasher service
+        /// </summary>
         public IPasswordHasher<User> PasswordHasher { get; }
 
+        /// <summary>
+        /// Get the token generator service
+        /// </summary>
         public ITokenGenerator TokenGenerator { get; }
 
+        /// <summary>
+        /// Get the password recovery handler
+        /// </summary>
         public IRecoverPasswordCommandHandler RecoverPasswordHandler { get; }
 
+        /// <summary>
+        /// Get the password recovery validation handler
+        /// </summary>
         public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
 
         public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler)
@@ -36,6 +57,7 @@ namespace Wilcommerce.Auth.Services
             ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
         }
 
+        /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
         public Task SignIn(string email, string password, bool isPersistent)
         {
             try
@@ -66,6 +88,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <inheritdoc cref="IAuthenticationService.SignOut"/>
         public Task SignOut()
         {
             try
@@ -78,6 +101,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <inheritdoc cref="IAuthenticationService.RecoverPassword(string)"/>
         public Task RecoverPassword(string email)
         {
             try
@@ -100,6 +124,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <inheritdoc cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
         public Task ValidatePasswordRecovery(string token)
         {
             try
@@ -114,6 +139,12 @@ namespace Wilcommerce.Auth.Services
         }
 
         #region Protected methods
+        /// <summary>
+        /// Check whether the password is valid
+        /// </summary>
+        /// <param name="user">The user instance</param>
+        /// <param name="password">The password to check</param>
+        /// <returns>true if the password is valid, false otherwise</returns>
         protected virtual bool IsPasswordValid(User user, string password)
         {
             try
@@ -127,6 +158,11 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <summary>
+        /// Create the claim principal for the user
+        /// </summary>
+        /// <param name="user">The user instance</param>
+        /// <returns>The claim principal</returns>
         protected virtual ClaimsPrincipal CreatePrincipalForUser(User user)
         {
             try
@@ -146,6 +182,11 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <summary>
+        /// Get the string representing the user's role
+        /// </summary>
+        /// <param name="user">The user instance</param>
+        /// <returns>The user's role as a string</returns>
         protected virtual string GetRoleStringForUser(User user)
         {
             var role = user.Role;
