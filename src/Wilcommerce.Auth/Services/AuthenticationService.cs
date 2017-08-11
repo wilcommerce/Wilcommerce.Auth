@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using Wilcommerce.Auth.Services.Interfaces;
 using Wilcommerce.Auth.Commands.Handlers.Interfaces;
 using Wilcommerce.Auth.Commands;
+using Wilcommerce.Core.Infrastructure;
+using Wilcommerce.Auth.Events.User;
 
 namespace Wilcommerce.Auth.Services
 {
@@ -47,7 +49,9 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler)
+        public IEventBus EventBus { get; }
+
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
@@ -55,6 +59,7 @@ namespace Wilcommerce.Auth.Services
             TokenGenerator = tokenGenerator;
             RecoverPasswordHandler = recoverPasswordHandler;
             ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
+            EventBus = eventBus;
         }
 
         /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
@@ -77,10 +82,15 @@ namespace Wilcommerce.Auth.Services
                 }
 
                 var principal = CreatePrincipalForUser(user);
-                return AuthenticationManager.SignInAsync(
+                var signin = AuthenticationManager.SignInAsync(
                     AuthenticationDefaults.AuthenticationScheme, 
                     principal, 
                     new AuthenticationProperties { IsPersistent = isPersistent });
+
+                var @event = new UserSignedInEvent(user.Id, user.Email);
+                EventBus.RaiseEvent(@event);
+
+                return signin;
             }
             catch 
             {
