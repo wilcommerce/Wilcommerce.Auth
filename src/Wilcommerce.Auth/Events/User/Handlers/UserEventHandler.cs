@@ -1,16 +1,34 @@
-﻿using Wilcommerce.Core.Infrastructure;
+﻿using Microsoft.AspNetCore.Http.Authentication;
+using System;
+using System.Linq;
+using Wilcommerce.Auth.Services.Interfaces;
+using Wilcommerce.Core.Common.Domain.ReadModels;
+using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Events.User.Handlers
 {
     public class UserEventHandler : 
         IHandleEvent<UserSignedInEvent>,
-        IHandleEvent<PasswordRecoveryRequestedEvent>
+        IHandleEvent<PasswordRecoveryRequestedEvent>,
+        IHandleEvent<PasswordRecoveryValidatedEvent>
     {
         public IEventStore EventStore { get; }
 
-        public UserEventHandler(IEventStore eventStore)
+        public IIdentityFactory IdentityFactory { get; }
+
+        public ICommonDatabase CommonDatabase { get; }
+
+        /// <summary>
+        /// Get the OWIN Authentication manager
+        /// </summary>
+        public AuthenticationManager AuthenticationManager { get; }
+
+        public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, AuthenticationManager authenticationManager)
         {
             EventStore = eventStore;
+            IdentityFactory = identityFactory;
+            CommonDatabase = commonDatabase;
+            AuthenticationManager = authenticationManager;
         }
 
         public void Handle(UserSignedInEvent @event)
@@ -30,6 +48,29 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             try
             {
                 EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public void Handle(PasswordRecoveryValidatedEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
+
+                var user = CommonDatabase.Users
+                    .FirstOrDefault(u => u.Id == @event.AggregateId);
+
+                if (user == null)
+                {
+                    throw new Exception("User not found");
+                }
+
+                var principal = IdentityFactory.CreateIdentity(user);
+                AuthenticationManager.SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal);
             }
             catch
             {
