@@ -39,6 +39,8 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public ITokenGenerator TokenGenerator { get; }
 
+        public IIdentityFactory IdentityFactory { get; }
+
         /// <summary>
         /// Get the password recovery handler
         /// </summary>
@@ -51,7 +53,7 @@ namespace Wilcommerce.Auth.Services
 
         public IEventBus EventBus { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus)
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
@@ -60,6 +62,7 @@ namespace Wilcommerce.Auth.Services
             RecoverPasswordHandler = recoverPasswordHandler;
             ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
             EventBus = eventBus;
+            IdentityFactory = identityFactory;
         }
 
         /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
@@ -81,7 +84,7 @@ namespace Wilcommerce.Auth.Services
                     throw new InvalidOperationException("Bad credentials");
                 }
 
-                var principal = CreatePrincipalForUser(user);
+                var principal = IdentityFactory.CreateIdentity(user);
                 var signin = AuthenticationManager.SignInAsync(
                     AuthenticationDefaults.AuthenticationScheme, 
                     principal, 
@@ -165,49 +168,6 @@ namespace Wilcommerce.Auth.Services
             catch 
             {
                 throw;
-            }
-        }
-
-        /// <summary>
-        /// Create the claim principal for the user
-        /// </summary>
-        /// <param name="user">The user instance</param>
-        /// <returns>The claim principal</returns>
-        protected virtual ClaimsPrincipal CreatePrincipalForUser(User user)
-        {
-            try
-            {
-                var identity = new ClaimsIdentity();
-                identity.AddClaim(new Claim(ClaimTypes.Name, user.Email));
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
-                identity.AddClaim(new Claim(ClaimTypes.Role, GetRoleStringForUser(user)));
-                identity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
-
-                return new ClaimsPrincipal(identity);
-            }
-            catch 
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Get the string representing the user's role
-        /// </summary>
-        /// <param name="user">The user instance</param>
-        /// <returns>The user's role as a string</returns>
-        protected virtual string GetRoleStringForUser(User user)
-        {
-            var role = user.Role;
-            switch (role)
-            {
-                case User.Roles.CUSTOMER:
-                    return AuthenticationDefaults.CustomerRole;
-                case User.Roles.ADMINISTRATOR:
-                    return AuthenticationDefaults.AdministratorRole;
-                default:
-                    return null;
             }
         }
         #endregion

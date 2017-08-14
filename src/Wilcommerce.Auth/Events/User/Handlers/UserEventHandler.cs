@@ -2,7 +2,9 @@
 
 namespace Wilcommerce.Auth.Events.User.Handlers
 {
-    public class UserEventHandler : IHandleEvent<UserSignedInEvent>
+    public class UserEventHandler : 
+        IHandleEvent<UserSignedInEvent>,
+        IHandleEvent<PasswordRecoveryRequestedEvent>
     {
         public IEventStore EventStore { get; }
 
@@ -19,7 +21,19 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             }
             catch 
             {
-                
+                throw;
+            }
+        }
+
+        public void Handle(PasswordRecoveryRequestedEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
             }
         }
     }
