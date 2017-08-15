@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Wilcommerce.Auth.Services;
 using Wilcommerce.Auth.Services.Interfaces;
 using Wilcommerce.Core.Common.Domain.Models;

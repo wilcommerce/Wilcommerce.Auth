@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Authentication;
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
 using Wilcommerce.Core.Common.Domain.ReadModels;
