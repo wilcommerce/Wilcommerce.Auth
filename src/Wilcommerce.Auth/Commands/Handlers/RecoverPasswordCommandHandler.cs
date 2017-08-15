@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Wilcommerce.Auth.Events.User;
 using Wilcommerce.Auth.Models;
 using Wilcommerce.Auth.Repository;
 
@@ -25,6 +26,9 @@ namespace Wilcommerce.Auth.Commands.Handlers
 
                 Repository.Add(userToken);
                 await Repository.SaveChangesAsync();
+
+                var @event = new PasswordRecoveryRequestedEvent(userToken.UserId, userToken.User.Email, userToken.Id, userToken.Token, userToken.ExpirationDate);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {

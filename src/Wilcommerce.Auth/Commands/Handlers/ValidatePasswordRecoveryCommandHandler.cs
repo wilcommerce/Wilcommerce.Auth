@@ -13,10 +13,13 @@ namespace Wilcommerce.Auth.Commands.Handlers
 
         public IRepository Repository { get; }
 
-        public ValidatePasswordRecoveryCommandHandler(IAuthDatabase database, IRepository repository)
+        public Core.Infrastructure.IEventBus EventBus { get; }
+
+        public ValidatePasswordRecoveryCommandHandler(IAuthDatabase database, IRepository repository, Core.Infrastructure.IEventBus eventBus)
         {
             Database = database;
             Repository = repository;
+            EventBus = eventBus;
         }
 
         public async Task Handle(ValidatePasswordRecoveryCommand command)

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Authentication;
 using System;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
 using Wilcommerce.Core.Common.Domain.ReadModels;
@@ -9,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Wilcommerce.Auth.Services.Interfaces;
 using Wilcommerce.Auth.Commands.Handlers.Interfaces;
 using Wilcommerce.Auth.Commands;
+using Wilcommerce.Core.Infrastructure;
+using Wilcommerce.Auth.Events.User;
 
 namespace Wilcommerce.Auth.Services
 {
@@ -38,6 +39,11 @@ namespace Wilcommerce.Auth.Services
         public ITokenGenerator TokenGenerator { get; }
 
         /// <summary>
+        /// Get the identity factory
+        /// </summary>
+        public IIdentityFactory IdentityFactory { get; }
+
+        /// <summary>
         /// Get the password recovery handler
         /// </summary>
         public IRecoverPasswordCommandHandler RecoverPasswordHandler { get; }
@@ -47,7 +53,12 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler)
+        /// <summary>
+        /// Get the event bus
+        /// </summary>
+        public IEventBus EventBus { get; }
+
+        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
             AuthenticationManager = authenticationManager;
             CommonDatabase = commonDatabase;
@@ -55,6 +66,8 @@ namespace Wilcommerce.Auth.Services
             TokenGenerator = tokenGenerator;
             RecoverPasswordHandler = recoverPasswordHandler;
             ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
+            EventBus = eventBus;
+            IdentityFactory = identityFactory;
         }
 
         /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
@@ -76,11 +89,16 @@ namespace Wilcommerce.Auth.Services
                     throw new InvalidOperationException("Bad credentials");
                 }
 
-                var principal = CreatePrincipalForUser(user);
-                return AuthenticationManager.SignInAsync(
+                var principal = IdentityFactory.CreateIdentity(user);
+                var signin = AuthenticationManager.SignInAsync(
                     AuthenticationDefaults.AuthenticationScheme, 
                     principal, 
                     new AuthenticationProperties { IsPersistent = isPersistent });
+
+                var @event = new UserSignedInEvent(user.Id, user.Email);
+                EventBus.RaiseEvent(@event);
+
+                return signin;
             }
             catch 
             {
@@ -155,49 +173,6 @@ namespace Wilcommerce.Auth.Services
             catch 
             {
                 throw;
-            }
-        }
-
-        /// <summary>
-        /// Create the claim principal for the user
-        /// </summary>
-        /// <param name="user">The user instance</param>
-        /// <returns>The claim principal</returns>
-        protected virtual ClaimsPrincipal CreatePrincipalForUser(User user)
-        {
-            try
-            {
-                var identity = new ClaimsIdentity();
-                identity.AddClaim(new Claim(ClaimTypes.Name, user.Email));
-                identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-                identity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
-                identity.AddClaim(new Claim(ClaimTypes.Role, GetRoleStringForUser(user)));
-                identity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
-
-                return new ClaimsPrincipal(identity);
-            }
-            catch 
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Get the string representing the user's role
-        /// </summary>
-        /// <param name="user">The user instance</param>
-        /// <returns>The user's role as a string</returns>
-        protected virtual string GetRoleStringForUser(User user)
-        {
-            var role = user.Role;
-            switch (role)
-            {
-                case User.Roles.CUSTOMER:
-                    return AuthenticationDefaults.CustomerRole;
-                case User.Roles.ADMINISTRATOR:
-                    return AuthenticationDefaults.AdministratorRole;
-                default:
-                    return null;
             }
         }
         #endregion
