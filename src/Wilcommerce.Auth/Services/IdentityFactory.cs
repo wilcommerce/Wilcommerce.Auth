@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Security.Claims;
+using Wilcommerce.Auth.Services.Interfaces;
 using Wilcommerce.Core.Common.Domain.Models;
 
 namespace Wilcommerce.Auth.Services
 {
-    public class IdentityFactory : Interfaces.IIdentityFactory
+    /// <summary>
+    /// Defines the implementation for the identity factory
+    /// </summary>
+    public class IdentityFactory : IIdentityFactory
     {
+        /// <inheritdoc cref="IIdentityFactory.CreateIdentity(User)" />
         public virtual ClaimsPrincipal CreateIdentity(User user)
         {
             try

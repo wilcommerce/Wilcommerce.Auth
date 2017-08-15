@@ -38,6 +38,9 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public ITokenGenerator TokenGenerator { get; }
 
+        /// <summary>
+        /// Get the identity factory
+        /// </summary>
         public IIdentityFactory IdentityFactory { get; }
 
         /// <summary>
@@ -50,6 +53,9 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
 
+        /// <summary>
+        /// Get the event bus
+        /// </summary>
         public IEventBus EventBus { get; }
 
         public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
