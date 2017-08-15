@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Wilcommerce.Auth.Services;
 using Wilcommerce.Auth.Services.Interfaces;
@@ -43,6 +44,33 @@ namespace Wilcommerce.Auth.Test.Services
             var principal = _factory.CreateIdentity(user);
 
             Assert.True(principal.IsInRole(AuthenticationDefaults.CustomerRole));
+        }
+
+        [Fact]
+        public void CreateIdentity_NameIdentifier_Must_Match_User_Id()
+        {
+            var user = User.CreateAsAdministrator("User", "admin@admin.com", "1234");
+            var principal = _factory.CreateIdentity(user);
+
+            Assert.Equal(principal.FindFirstValue(ClaimTypes.NameIdentifier), user.Id.ToString());
+        }
+
+        [Fact]
+        public void CreateIdentity_Email_Must_Match_User_Email()
+        {
+            var user = User.CreateAsAdministrator("User", "admin@admin.com", "1234");
+            var principal = _factory.CreateIdentity(user);
+
+            Assert.Equal(principal.FindFirstValue(ClaimTypes.Email), user.Email);
+        }
+
+        [Fact]
+        public void CreateIdentity_GivenName_Must_Match_User_Name()
+        {
+            var user = User.CreateAsAdministrator("User", "admin@admin.com", "1234");
+            var principal = _factory.CreateIdentity(user);
+
+            Assert.Equal(principal.FindFirstValue(ClaimTypes.GivenName), user.Name);
         }
     }
 }
