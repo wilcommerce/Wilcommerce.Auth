@@ -1,6 +1,5 @@
 {
-  "version": "1.0.0-beta1",
-
+  "authors": [ "Alberto Mori" ],
   "dependencies": {
     "Microsoft.AspNetCore.Authentication.Cookies": "1.1.2",
     "Microsoft.AspNetCore.Owin": "1.1.2",
@@ -9,23 +8,22 @@
     "System.Linq.Queryable": "4.3.0",
     "Microsoft.AspNetCore.Identity": "1.1.2"
   },
-
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50"
     }
   },
-  "authors": [ "Alberto Mori" ],
   "packOptions": {
     "iconUrl": "http://www.wilcommerce.com/logo64.png",
     "licenseUrl": "https://github.com/wilcommerce/Wilcommerce.Auth/blob/master/LICENSE",
+    "owners": [ "Alberto Mori" ],
     "projectUrl": "https://github.com/wilcommerce/Wilcommerce.Auth",
     "repository": {
       "type": "git",
       "url": "https://github.com/wilcommerce/Wilcommerce.Auth"
     },
-    "tags": [ "wilcommerce", "ecommerce", "opensource", ".netcore", ".net", "authentication", "owin", "identity" ],
-    "owners": [ "Alberto Mori" ],
-    "summary": "Wilcommerce Authentication library"
-  }
+    "summary": "Wilcommerce Authentication library",
+    "tags": [ "wilcommerce", "ecommerce", "opensource", ".netcore", ".net", "authentication", "owin", "identity" ]
+  },
+  "version": "1.0.0-beta1"
 }
