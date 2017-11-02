@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <VersionPrefix>1.0.0-beta1</VersionPrefix>
+    <Authors>Alberto Mori</Authors>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <AssemblyName>Wilcommerce.Auth</AssemblyName>
+    <PackageId>Wilcommerce.Auth</PackageId>
+    <PackageTags>wilcommerce;ecommerce;opensource;.netcore;.net;authentication;owin;identity</PackageTags>
+    <PackageIconUrl>http://www.wilcommerce.com/logo64.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/wilcommerce/Wilcommerce.Auth</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/wilcommerce/Wilcommerce.Auth/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/wilcommerce/Wilcommerce.Auth</RepositoryUrl>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
+    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Owin" Version="1.1.2" />
+    <PackageReference Include="Wilcommerce.Core.Common" Version="1.0.0-beta4" />
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.1.2" />
+  </ItemGroup>
+
+</Project>
