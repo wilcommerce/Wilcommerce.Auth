@@ -6,11 +6,11 @@ using Wilcommerce.Core.Common.Domain.Models;
 namespace Wilcommerce.Auth.Services
 {
     /// <summary>
-    /// Defines the implementation for the identity factory
+    /// Implementation of <see cref="IIdentityFactory"/>
     /// </summary>
     public class IdentityFactory : IIdentityFactory
     {
-        /// <inheritdoc cref="IIdentityFactory.CreateIdentity(User)" />
+        /// <see cref="IIdentityFactory.CreateIdentity(User)" />
         public virtual ClaimsPrincipal CreateIdentity(User user)
         {
             try

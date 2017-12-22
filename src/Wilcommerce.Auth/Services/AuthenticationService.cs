@@ -15,10 +15,13 @@ using Microsoft.AspNetCore.Authentication;
 namespace Wilcommerce.Auth.Services
 {
     /// <summary>
-    /// Defines the implementations for the authentication actions
+    /// Implementation of <see cref="Interfaces.IAuthenticationService"/>
     /// </summary>
     public class AuthenticationService : Interfaces.IAuthenticationService
     {
+        /// <summary>
+        /// Get the http context
+        /// </summary>
         public HttpContext Context { get; }
 
         /// <summary>
@@ -56,6 +59,17 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public IEventBus EventBus { get; }
 
+        /// <summary>
+        /// Construct the authentication service
+        /// </summary>
+        /// <param name="httpContext">The http context instance</param>
+        /// <param name="commonDatabase">The common database instance</param>
+        /// <param name="passwordHasher">The password hasher instance</param>
+        /// <param name="tokenGenerator">The token generator instance</param>
+        /// <param name="recoverPasswordHandler">The password recover handler instance</param>
+        /// <param name="validatePasswordRecoveryHandler">The password recovery validation handler instance</param>
+        /// <param name="eventBus">The event bus instance</param>
+        /// <param name="identityFactory">The identity factory instance</param>
         public AuthenticationService(HttpContext httpContext, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
             Context = httpContext;
@@ -68,7 +82,7 @@ namespace Wilcommerce.Auth.Services
             IdentityFactory = identityFactory;
         }
 
-        /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
+        /// <see cref="IAuthenticationService.SignIn(string, string, bool)"/>
         public Task SignIn(string email, string password, bool isPersistent)
         {
             try
@@ -104,7 +118,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <inheritdoc cref="IAuthenticationService.SignOut"/>
+        /// <see cref="IAuthenticationService.SignOut"/>
         public Task SignOut()
         {
             try
@@ -117,7 +131,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <inheritdoc cref="IAuthenticationService.RecoverPassword(string)"/>
+        /// <see cref="IAuthenticationService.RecoverPassword(string)"/>
         public Task RecoverPassword(string email)
         {
             try
@@ -140,7 +154,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <inheritdoc cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
+        /// <see cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
         public Task ValidatePasswordRecovery(string token)
         {
             try
