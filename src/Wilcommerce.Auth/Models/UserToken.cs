@@ -9,7 +9,10 @@ namespace Wilcommerce.Auth.Models
     /// </summary>
     public class UserToken : IAggregateRoot
     {
-        public Guid Id { get; set; }
+        /// <summary>
+        /// Get the entity id
+        /// </summary>
+        public Guid Id { get; protected set; }
 
         #region Properties
         /// <summary>
