@@ -82,7 +82,7 @@ namespace Wilcommerce.Auth.Services
             IdentityFactory = identityFactory;
         }
 
-        /// <see cref="IAuthenticationService.SignIn(string, string, bool)"/>
+        /// <see cref="Interfaces.IAuthenticationService.SignIn(string, string, bool)"/>
         public Task SignIn(string email, string password, bool isPersistent)
         {
             try
@@ -118,7 +118,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <see cref="IAuthenticationService.SignOut"/>
+        /// <see cref="Interfaces.IAuthenticationService.SignOut"/>
         public Task SignOut()
         {
             try
@@ -131,7 +131,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <see cref="IAuthenticationService.RecoverPassword(string)"/>
+        /// <see cref="Interfaces.IAuthenticationService.RecoverPassword(string)"/>
         public Task RecoverPassword(string email)
         {
             try
@@ -154,7 +154,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <see cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
+        /// <see cref="Interfaces.IAuthenticationService.ValidatePasswordRecovery(string)"/>
         public Task ValidatePasswordRecovery(string token)
         {
             try
