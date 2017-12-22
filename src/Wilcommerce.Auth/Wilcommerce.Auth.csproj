@@ -17,6 +17,15 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Version>1.0.0-rc1</Version>
     <PackageReleaseNotes>Upgrade to .NET Standard 2.0 &amp; .NET Core 2.0</PackageReleaseNotes>
+    <Description>Wilcommerce Authentication and Authorization library</Description>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\Wilcommerce.Auth.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\Wilcommerce.Auth.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
