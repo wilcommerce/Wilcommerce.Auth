@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Authentication;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
@@ -10,18 +9,20 @@ using Wilcommerce.Auth.Commands.Handlers.Interfaces;
 using Wilcommerce.Auth.Commands;
 using Wilcommerce.Core.Infrastructure;
 using Wilcommerce.Auth.Events.User;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Wilcommerce.Auth.Services
 {
     /// <summary>
-    /// Defines the implementations for the authentication actions
+    /// Implementation of <see cref="Interfaces.IAuthenticationService"/>
     /// </summary>
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : Interfaces.IAuthenticationService
     {
         /// <summary>
-        /// Get the OWIN Authentication manager
+        /// Get the http context
         /// </summary>
-        public AuthenticationManager AuthenticationManager { get; }
+        public HttpContext Context { get; }
 
         /// <summary>
         /// Get the common context database
@@ -58,9 +59,20 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public IEventBus EventBus { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
+        /// <summary>
+        /// Construct the authentication service
+        /// </summary>
+        /// <param name="httpContext">The http context instance</param>
+        /// <param name="commonDatabase">The common database instance</param>
+        /// <param name="passwordHasher">The password hasher instance</param>
+        /// <param name="tokenGenerator">The token generator instance</param>
+        /// <param name="recoverPasswordHandler">The password recover handler instance</param>
+        /// <param name="validatePasswordRecoveryHandler">The password recovery validation handler instance</param>
+        /// <param name="eventBus">The event bus instance</param>
+        /// <param name="identityFactory">The identity factory instance</param>
+        public AuthenticationService(HttpContext httpContext, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
-            AuthenticationManager = authenticationManager;
+            Context = httpContext;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
             TokenGenerator = tokenGenerator;
@@ -70,7 +82,7 @@ namespace Wilcommerce.Auth.Services
             IdentityFactory = identityFactory;
         }
 
-        /// <inheritdoc cref="IAuthenticationService.SignIn(string, string, bool)"/>
+        /// <see cref="IAuthenticationService.SignIn(string, string, bool)"/>
         public Task SignIn(string email, string password, bool isPersistent)
         {
             try
@@ -90,7 +102,7 @@ namespace Wilcommerce.Auth.Services
                 }
 
                 var principal = IdentityFactory.CreateIdentity(user);
-                var signin = AuthenticationManager.SignInAsync(
+                var signin = Context.SignInAsync(
                     AuthenticationDefaults.AuthenticationScheme, 
                     principal, 
                     new AuthenticationProperties { IsPersistent = isPersistent });
@@ -106,12 +118,12 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <inheritdoc cref="IAuthenticationService.SignOut"/>
+        /// <see cref="IAuthenticationService.SignOut"/>
         public Task SignOut()
         {
             try
             {
-                return AuthenticationManager.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
+                return Context.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
             }
             catch 
             {
@@ -119,7 +131,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <inheritdoc cref="IAuthenticationService.RecoverPassword(string)"/>
+        /// <see cref="IAuthenticationService.RecoverPassword(string)"/>
         public Task RecoverPassword(string email)
         {
             try
@@ -142,7 +154,7 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <inheritdoc cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
+        /// <see cref="IAuthenticationService.ValidatePasswordRecovery(string)"/>
         public Task ValidatePasswordRecovery(string token)
         {
             try

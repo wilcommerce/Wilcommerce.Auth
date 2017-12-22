@@ -11,7 +11,7 @@ namespace Wilcommerce.Auth.Services.Interfaces
         /// <summary>
         /// Create the claims principal by the user
         /// </summary>
-        /// <param name="user">The user for which creates the indentity</param>
+        /// <param name="user">The user for which creates the identity</param>
         /// <returns>The claims principal</returns>
         ClaimsPrincipal CreateIdentity(User user);
     }

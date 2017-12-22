@@ -9,14 +9,12 @@ namespace Wilcommerce.Auth.Models
     /// </summary>
     public class UserToken : IAggregateRoot
     {
-        public Guid Id { get; set; }
+        /// <summary>
+        /// Get the entity id
+        /// </summary>
+        public Guid Id { get; protected set; }
 
         #region Properties
-        /// <summary>
-        /// Get the related user
-        /// </summary>
-        public virtual User User { get; protected set; }
-
         /// <summary>
         /// Get the related user id
         /// </summary>
