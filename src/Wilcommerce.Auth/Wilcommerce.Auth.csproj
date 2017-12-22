@@ -15,8 +15,8 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.0.0-rc1</Version>
-    <PackageReleaseNotes>Upgrade to .NET Standard 2.0 &amp; .NET Core 2.0</PackageReleaseNotes>
+    <Version>1.0.0-rc2</Version>
+    <PackageReleaseNotes>Add password recovery validated event</PackageReleaseNotes>
     <Description>Wilcommerce Authentication and Authorization library</Description>
   </PropertyGroup>
 
