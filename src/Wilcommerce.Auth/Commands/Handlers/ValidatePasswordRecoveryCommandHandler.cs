@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Wilcommerce.Auth.Events.User;
 using Wilcommerce.Auth.Models;
 using Wilcommerce.Auth.ReadModels;
 using Wilcommerce.Auth.Repository;
@@ -63,6 +64,9 @@ namespace Wilcommerce.Auth.Commands.Handlers
                 token.SetAsExpired();
 
                 await Repository.SaveChangesAsync();
+
+                var @event = new PasswordRecoveryValidatedEvent(userToken.UserId, userToken.Token);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
