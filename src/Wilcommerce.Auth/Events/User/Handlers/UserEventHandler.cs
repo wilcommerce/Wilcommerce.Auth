@@ -8,19 +8,41 @@ using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Events.User.Handlers
 {
+    /// <summary>
+    /// Handles all the events related to the user
+    /// </summary>
     public class UserEventHandler : 
         IHandleEvent<UserSignedInEvent>,
         IHandleEvent<PasswordRecoveryRequestedEvent>,
         IHandleEvent<PasswordRecoveryValidatedEvent>
     {
+        /// <summary>
+        /// Get the event store
+        /// </summary>
         public IEventStore EventStore { get; }
 
+        /// <summary>
+        /// Get the identity factory
+        /// </summary>
         public IIdentityFactory IdentityFactory { get; }
 
+        /// <summary>
+        /// Get the database of the common context
+        /// </summary>
         public ICommonDatabase CommonDatabase { get; }
 
+        /// <summary>
+        /// Get the http context
+        /// </summary>
         public HttpContext Context { get; }
 
+        /// <summary>
+        /// Construct the event handler
+        /// </summary>
+        /// <param name="eventStore">The event store instance</param>
+        /// <param name="identityFactory">The identity factory instance</param>
+        /// <param name="commonDatabase">The common database instance</param>
+        /// <param name="httpContext">The http context instance</param>
         public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, HttpContext httpContext)
         {
             EventStore = eventStore;
@@ -29,6 +51,7 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             Context = httpContext;
         }
 
+        /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
         public void Handle(UserSignedInEvent @event)
         {
             try
@@ -41,6 +64,7 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             }
         }
 
+        /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
         public void Handle(PasswordRecoveryRequestedEvent @event)
         {
             try
@@ -53,6 +77,7 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             }
         }
 
+        /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
         public void Handle(PasswordRecoveryValidatedEvent @event)
         {
             try
