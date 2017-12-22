@@ -109,7 +109,7 @@ namespace Wilcommerce.Auth.Test.Models
             var userToken = UserToken.Registration(user, token, expirationDate);
             userToken.SetAsExpired();
 
-            Assert.Equal(true, userToken.IsExpired);
+            Assert.True(userToken.IsExpired);
             Assert.Equal(DateTime.Now.ToString("yyyy-MM-dd"), userToken.ExpirationDate.ToString("yyyy-MM-dd"));
         }
     }
