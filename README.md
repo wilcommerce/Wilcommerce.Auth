@@ -21,3 +21,6 @@ This namespace contains the interface which defines the persistence of the compo
 
 ## Events
 In the **Events** namespace are defined all the events that could happen after an action made.
+
+# Contributing
+If you want to contribute to Wilcommerce please, check the [CONTRIBUTING](CONTRIBUTING.md) file.
