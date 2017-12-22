@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
 using Wilcommerce.Auth.Services.Interfaces;
@@ -18,17 +19,14 @@ namespace Wilcommerce.Auth.Events.User.Handlers
 
         public ICommonDatabase CommonDatabase { get; }
 
-        /// <summary>
-        /// Get the OWIN Authentication manager
-        /// </summary>
-        public AuthenticationManager AuthenticationManager { get; }
+        public HttpContext Context { get; }
 
-        public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, AuthenticationManager authenticationManager)
+        public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, HttpContext httpContext)
         {
             EventStore = eventStore;
             IdentityFactory = identityFactory;
             CommonDatabase = commonDatabase;
-            AuthenticationManager = authenticationManager;
+            Context = httpContext;
         }
 
         public void Handle(UserSignedInEvent @event)
@@ -70,7 +68,7 @@ namespace Wilcommerce.Auth.Events.User.Handlers
                 }
 
                 var principal = IdentityFactory.CreateIdentity(user);
-                AuthenticationManager.SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal);
+                Context.SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal);
             }
             catch
             {

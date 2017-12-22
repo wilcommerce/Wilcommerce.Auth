@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Authentication;
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Wilcommerce.Core.Common.Domain.Models;
@@ -10,18 +9,17 @@ using Wilcommerce.Auth.Commands.Handlers.Interfaces;
 using Wilcommerce.Auth.Commands;
 using Wilcommerce.Core.Infrastructure;
 using Wilcommerce.Auth.Events.User;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Wilcommerce.Auth.Services
 {
     /// <summary>
     /// Defines the implementations for the authentication actions
     /// </summary>
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : Interfaces.IAuthenticationService
     {
-        /// <summary>
-        /// Get the OWIN Authentication manager
-        /// </summary>
-        public AuthenticationManager AuthenticationManager { get; }
+        public HttpContext Context { get; }
 
         /// <summary>
         /// Get the common context database
@@ -58,9 +56,9 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         public IEventBus EventBus { get; }
 
-        public AuthenticationService(AuthenticationManager authenticationManager, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
+        public AuthenticationService(HttpContext httpContext, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
-            AuthenticationManager = authenticationManager;
+            Context = httpContext;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
             TokenGenerator = tokenGenerator;
@@ -90,7 +88,7 @@ namespace Wilcommerce.Auth.Services
                 }
 
                 var principal = IdentityFactory.CreateIdentity(user);
-                var signin = AuthenticationManager.SignInAsync(
+                var signin = Context.SignInAsync(
                     AuthenticationDefaults.AuthenticationScheme, 
                     principal, 
                     new AuthenticationProperties { IsPersistent = isPersistent });
@@ -111,7 +109,7 @@ namespace Wilcommerce.Auth.Services
         {
             try
             {
-                return AuthenticationManager.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
+                return Context.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
             }
             catch 
             {
