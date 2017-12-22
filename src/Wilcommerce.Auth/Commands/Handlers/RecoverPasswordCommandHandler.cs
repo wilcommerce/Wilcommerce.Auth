@@ -27,7 +27,7 @@ namespace Wilcommerce.Auth.Commands.Handlers
                 Repository.Add(userToken);
                 await Repository.SaveChangesAsync();
 
-                var @event = new PasswordRecoveryRequestedEvent(userToken.UserId, userToken.User.Email, userToken.Id, userToken.Token, userToken.ExpirationDate);
+                var @event = new PasswordRecoveryRequestedEvent(userToken.UserId, command.UserInfo.Email, userToken.Id, userToken.Token, userToken.ExpirationDate);
                 EventBus.RaiseEvent(@event);
             }
             catch 

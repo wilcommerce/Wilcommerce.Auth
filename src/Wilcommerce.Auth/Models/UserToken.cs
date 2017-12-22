@@ -13,11 +13,6 @@ namespace Wilcommerce.Auth.Models
 
         #region Properties
         /// <summary>
-        /// Get the related user
-        /// </summary>
-        public virtual User User { get; protected set; }
-
-        /// <summary>
         /// Get the related user id
         /// </summary>
         public Guid UserId { get; protected set; }
