@@ -15,8 +15,8 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.0.0-rc2</Version>
-    <PackageReleaseNotes>Add password recovery validated event</PackageReleaseNotes>
+    <Version>1.0.0-rc3</Version>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <Description>Wilcommerce Authentication and Authorization library</Description>
   </PropertyGroup>
 
