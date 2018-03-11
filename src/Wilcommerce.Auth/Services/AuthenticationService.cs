@@ -62,7 +62,7 @@ namespace Wilcommerce.Auth.Services
         /// <summary>
         /// Construct the authentication service
         /// </summary>
-        /// <param name="httpContext">The http context instance</param>
+        /// <param name="httpContextAccessor">The http context accessor instance</param>
         /// <param name="commonDatabase">The common database instance</param>
         /// <param name="passwordHasher">The password hasher instance</param>
         /// <param name="tokenGenerator">The token generator instance</param>
@@ -70,9 +70,9 @@ namespace Wilcommerce.Auth.Services
         /// <param name="validatePasswordRecoveryHandler">The password recovery validation handler instance</param>
         /// <param name="eventBus">The event bus instance</param>
         /// <param name="identityFactory">The identity factory instance</param>
-        public AuthenticationService(HttpContext httpContext, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
+        public AuthenticationService(IHttpContextAccessor httpContextAccessor, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
-            Context = httpContext;
+            Context = httpContextAccessor.HttpContext;
             CommonDatabase = commonDatabase;
             PasswordHasher = passwordHasher;
             TokenGenerator = tokenGenerator;

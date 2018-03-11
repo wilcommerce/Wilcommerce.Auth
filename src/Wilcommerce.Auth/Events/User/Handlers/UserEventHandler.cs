@@ -42,13 +42,13 @@ namespace Wilcommerce.Auth.Events.User.Handlers
         /// <param name="eventStore">The event store instance</param>
         /// <param name="identityFactory">The identity factory instance</param>
         /// <param name="commonDatabase">The common database instance</param>
-        /// <param name="httpContext">The http context instance</param>
-        public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, HttpContext httpContext)
+        /// <param name="httpContextAccessor">The http context accessor instance</param>
+        public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, IHttpContextAccessor httpContextAccessor)
         {
             EventStore = eventStore;
             IdentityFactory = identityFactory;
             CommonDatabase = commonDatabase;
-            Context = httpContext;
+            Context = httpContextAccessor.HttpContext;
         }
 
         /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
