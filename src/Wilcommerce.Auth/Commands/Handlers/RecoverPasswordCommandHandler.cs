@@ -28,8 +28,8 @@ namespace Wilcommerce.Auth.Commands.Handlers
         /// <param name="eventBus">The event bus instance</param>
         public RecoverPasswordCommandHandler(IRepository repository, Core.Infrastructure.IEventBus eventBus)
         {
-            Repository = repository;
-            EventBus = eventBus;
+            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         /// <summary>
