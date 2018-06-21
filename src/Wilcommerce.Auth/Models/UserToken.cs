@@ -74,18 +74,18 @@ namespace Wilcommerce.Auth.Models
         {
             if (user == null)
             {
-                throw new ArgumentNullException("user");
+                throw new ArgumentNullException(nameof(user));
             }
 
             if (string.IsNullOrEmpty(token))
             {
-                throw new ArgumentNullException("token");
+                throw new ArgumentNullException(nameof(token));
             }
 
             var now = DateTime.Now;
             if (expirationDate < now)
             {
-                throw new ArgumentException("Invalid expiration date", "expirationDate");
+                throw new ArgumentException("Invalid expiration date", nameof(expirationDate));
             }
 
             var userToken = new UserToken

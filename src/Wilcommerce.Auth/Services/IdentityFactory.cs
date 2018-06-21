@@ -17,7 +17,7 @@ namespace Wilcommerce.Auth.Services
             {
                 if (user == null)
                 {
-                    throw new ArgumentNullException("user");
+                    throw new ArgumentNullException(nameof(user));
                 }
 
                 var identity = new ClaimsIdentity();
