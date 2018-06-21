@@ -45,9 +45,14 @@ namespace Wilcommerce.Auth.Events.User.Handlers
         /// <param name="httpContextAccessor">The http context accessor instance</param>
         public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, IHttpContextAccessor httpContextAccessor)
         {
-            EventStore = eventStore;
-            IdentityFactory = identityFactory;
-            CommonDatabase = commonDatabase;
+            if (httpContextAccessor == null)
+            {
+                throw new ArgumentNullException(nameof(httpContextAccessor));
+            }
+
+            EventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
+            IdentityFactory = identityFactory ?? throw new ArgumentNullException(nameof(identityFactory));
+            CommonDatabase = commonDatabase ?? throw new ArgumentNullException(nameof(commonDatabase));
             Context = httpContextAccessor.HttpContext;
         }
 

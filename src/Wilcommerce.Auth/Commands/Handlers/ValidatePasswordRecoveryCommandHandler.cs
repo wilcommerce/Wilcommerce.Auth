@@ -36,9 +36,9 @@ namespace Wilcommerce.Auth.Commands.Handlers
         /// <param name="eventBus">The event bus instance</param>
         public ValidatePasswordRecoveryCommandHandler(IAuthDatabase database, IRepository repository, Core.Infrastructure.IEventBus eventBus)
         {
-            Database = database;
-            Repository = repository;
-            EventBus = eventBus;
+            Database = database ?? throw new ArgumentNullException(nameof(database));
+            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         /// <summary>

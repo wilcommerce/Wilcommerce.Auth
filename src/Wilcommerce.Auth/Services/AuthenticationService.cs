@@ -72,14 +72,19 @@ namespace Wilcommerce.Auth.Services
         /// <param name="identityFactory">The identity factory instance</param>
         public AuthenticationService(IHttpContextAccessor httpContextAccessor, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
         {
+            if (httpContextAccessor == null)
+            {
+                throw new ArgumentNullException(nameof(httpContextAccessor));
+            }
+
             Context = httpContextAccessor.HttpContext;
-            CommonDatabase = commonDatabase;
-            PasswordHasher = passwordHasher;
-            TokenGenerator = tokenGenerator;
-            RecoverPasswordHandler = recoverPasswordHandler;
-            ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler;
-            EventBus = eventBus;
-            IdentityFactory = identityFactory;
+            CommonDatabase = commonDatabase ?? throw new ArgumentNullException(nameof(commonDatabase));
+            PasswordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
+            TokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
+            RecoverPasswordHandler = recoverPasswordHandler ?? throw new ArgumentNullException(nameof(recoverPasswordHandler));
+            ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler ?? throw new ArgumentNullException(nameof(validatePasswordRecoveryHandler));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            IdentityFactory = identityFactory ?? throw new ArgumentNullException(nameof(identityFactory));
         }
 
         /// <see cref="Interfaces.IAuthenticationService.SignIn(string, string, bool)"/>
