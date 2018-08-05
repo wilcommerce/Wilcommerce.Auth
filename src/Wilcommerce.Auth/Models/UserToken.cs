@@ -70,7 +70,7 @@ namespace Wilcommerce.Auth.Models
         /// <param name="token">The token string</param>
         /// <param name="expirationDate">The token expiration date</param>
         /// <returns>The token created</returns>
-        public static UserToken PasswordRecovery(User user, string token, DateTime expirationDate)
+        public static UserToken PasswordRecovery(Core.Common.Domain.Models.User user, string token, DateTime expirationDate)
         {
             if (user == null)
             {
@@ -108,7 +108,7 @@ namespace Wilcommerce.Auth.Models
         /// <param name="token">The token string</param>
         /// <param name="expirationDate">The token expiration date</param>
         /// <returns>The token created</returns>
-        public static UserToken Registration(User user, string token, DateTime expirationDate)
+        public static UserToken Registration(Core.Common.Domain.Models.User user, string token, DateTime expirationDate)
         {
             if (user == null)
             {
