@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using Wilcommerce.Auth.Events.User;
+using Wilcommerce.Auth.Services.Interfaces;
 
 namespace Wilcommerce.Auth.Commands.User.Handlers
 {
@@ -21,14 +22,21 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
         public Core.Infrastructure.IEventBus EventBus { get; }
 
         /// <summary>
+        /// Get the role factory instance
+        /// </summary>
+        public IRoleFactory RoleFactory { get; }
+
+        /// <summary>
         /// Construct the command handler
         /// </summary>
         /// <param name="userManager">The user manager</param>
         /// <param name="eventBus">The event bus</param>
-        public CreateNewAdministratorCommandHandler(UserManager<Models.User> userManager, Core.Infrastructure.IEventBus eventBus)
+        /// <param name="roleFactory">The role factory</param>
+        public CreateNewAdministratorCommandHandler(UserManager<Models.User> userManager, Core.Infrastructure.IEventBus eventBus, IRoleFactory roleFactory)
         {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            RoleFactory = roleFactory ?? throw new ArgumentNullException(nameof(roleFactory));
         }
 
         /// <summary>
@@ -47,7 +55,8 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                     throw new InvalidOperationException(string.Join(",", result.Errors));
                 }
 
-                await UserManager.AddToRoleAsync(administrator, AuthenticationDefaults.AdministratorRole);
+                var role = await RoleFactory.Administrator();
+                await UserManager.AddToRoleAsync(administrator, role.Name);
 
                 var @event = new NewAdministratorCreatedEvent(administrator.Id, administrator.Name, administrator.Email);
                 EventBus.RaiseEvent(@event);

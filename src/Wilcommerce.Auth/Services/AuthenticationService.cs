@@ -57,7 +57,7 @@ namespace Wilcommerce.Auth.Services
         /// <param name="password"></param>
         /// <param name="isPersistent"></param>
         /// <returns></returns>
-        public async Task<SignInResult> SignIn(string email, string password, bool isPersistent)
+        public virtual async Task<SignInResult> SignIn(string email, string password, bool isPersistent)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace Wilcommerce.Auth.Services
         /// Implementation of <see cref="IAuthenticationService.SignOut()"/>
         /// </summary>
         /// <returns></returns>
-        public Task SignOut()
+        public virtual Task SignOut()
         {
             try
             {

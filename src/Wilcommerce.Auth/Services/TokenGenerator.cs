@@ -27,7 +27,7 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<string> GenerateEmailConfirmationTokenForUser(User user)
+        public virtual async Task<string> GenerateEmailConfirmationTokenForUser(User user)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace Wilcommerce.Auth.Services
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public async Task<string> GeneratePasswordRecoveryTokenForUser(User user)
+        public virtual async Task<string> GeneratePasswordRecoveryTokenForUser(User user)
         {
             try
             {
