@@ -44,6 +44,11 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
+        /// <summary>
+        /// Implementation of <see cref="ITokenGenerator.GeneratePasswordRecoveryTokenForUser(User)"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public async Task<string> GeneratePasswordRecoveryTokenForUser(User user)
         {
             try

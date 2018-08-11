@@ -57,7 +57,7 @@ namespace Wilcommerce.Auth.Services
         /// <param name="password"></param>
         /// <param name="isPersistent"></param>
         /// <returns></returns>
-        public Task<SignInResult> SignIn(string email, string password, bool isPersistent)
+        public async Task<SignInResult> SignIn(string email, string password, bool isPersistent)
         {
             try
             {
@@ -66,10 +66,12 @@ namespace Wilcommerce.Auth.Services
                     .WithUsername(email)
                     .Single();
 
-                var signin = SignInManager.PasswordSignInAsync(user, password, isPersistent, false);
-
-                var @event = new UserSignedInEvent(user.Id, user.Email);
-                EventBus.RaiseEvent(@event);
+                var signin = await SignInManager.PasswordSignInAsync(user, password, isPersistent, false);
+                if (signin.Succeeded)
+                {
+                    var @event = new UserSignedInEvent(user.Id, user.Email);
+                    EventBus.RaiseEvent(@event);
+                }
 
                 return signin;
             }
