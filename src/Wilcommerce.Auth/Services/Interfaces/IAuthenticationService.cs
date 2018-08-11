@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace Wilcommerce.Auth.Services.Interfaces
 {
@@ -14,26 +15,12 @@ namespace Wilcommerce.Auth.Services.Interfaces
         /// <param name="password">The password</param>
         /// <param name="isPersistent">Whether the authentication is persistent</param>
         /// <returns></returns>
-        Task SignIn(string username, string password, bool isPersistent);
+        Task<SignInResult> SignIn(string username, string password, bool isPersistent);
 
         /// <summary>
         /// Sign out the authenticated user
         /// </summary>
         /// <returns></returns>
         Task SignOut();
-
-        /// <summary>
-        /// Perform the password recovery request
-        /// </summary>
-        /// <param name="email"></param>
-        /// <returns></returns>
-        Task RecoverPassword(string email);
-
-        /// <summary>
-        /// Validate the password recovery request by the specified token
-        /// </summary>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task ValidatePasswordRecovery(string token);
     }
 }

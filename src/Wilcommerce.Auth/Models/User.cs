@@ -85,21 +85,6 @@ namespace Wilcommerce.Auth.Models
         }
 
         /// <summary>
-        /// Change the user's email
-        /// </summary>
-        /// <param name="email">The new user's email</param>
-        public virtual void ChangeEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                throw new ArgumentException("value cannot be empty", nameof(email));
-            }
-
-            Email = email;
-            NormalizedEmail = email.ToUpper();
-        }
-
-        /// <summary>
         /// Set the user's profile image
         /// </summary>
         /// <param name="profileImage">The profile image to set</param>
@@ -138,6 +123,36 @@ namespace Wilcommerce.Auth.Models
                 Name = name,
                 IsActive = active,
                 EmailConfirmed = true
+            };
+
+            return user;
+        }
+
+        /// <summary>
+        /// Creates a new customer user
+        /// </summary>
+        /// <param name="name">The user full name</param>
+        /// <param name="email">The user username</param>
+        /// <returns>The created customer user</returns>
+        public static User CreateAsCustomer(string name, string email)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(name));
+            }
+
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ArgumentException("value cannot be empty", nameof(email));
+            }
+
+            var user = new User
+            {
+                UserName = email,
+                Email = email,
+                NormalizedEmail = email.ToUpper(),
+                NormalizedUserName = email.ToUpper(),
+                Name = name
             };
 
             return user;
