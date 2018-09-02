@@ -23,11 +23,6 @@ namespace Wilcommerce.Auth.Services
         public IAuthDatabase AuthDatabase { get; }
 
         /// <summary>
-        /// Get the token generator service
-        /// </summary>
-        public ITokenGenerator TokenGenerator { get; }
-
-        /// <summary>
         /// Get the event bus
         /// </summary>
         public IEventBus EventBus { get; }
@@ -41,13 +36,11 @@ namespace Wilcommerce.Auth.Services
         /// Construct the authentication service
         /// </summary>
         /// <param name="authDatabase">The common database instance</param>
-        /// <param name="tokenGenerator">The token generator instance</param>
         /// <param name="eventBus">The event bus instance</param>
         /// <param name="signInManager"></param>
-        public AuthenticationService(IAuthDatabase authDatabase, ITokenGenerator tokenGenerator, IEventBus eventBus, SignInManager<User> signInManager)
+        public AuthenticationService(IAuthDatabase authDatabase, IEventBus eventBus, SignInManager<User> signInManager)
         {
             AuthDatabase = authDatabase ?? throw new ArgumentNullException(nameof(authDatabase));
-            TokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
             EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         }
