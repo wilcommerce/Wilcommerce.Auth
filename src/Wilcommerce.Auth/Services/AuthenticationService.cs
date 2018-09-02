@@ -7,13 +7,15 @@ using Wilcommerce.Core.Infrastructure;
 using Wilcommerce.Auth.Events.User;
 using Wilcommerce.Auth.ReadModels;
 using Wilcommerce.Auth.Models;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace Wilcommerce.Auth.Services
 {
     /// <summary>
     /// Implementation of <see cref="IAuthenticationService"/>
     /// </summary>
-    public class AuthenticationService : IAuthenticationService
+    public class AuthenticationService : Interfaces.IAuthenticationService
     {
         /// <summary>
         /// Get the common context database
@@ -51,7 +53,7 @@ namespace Wilcommerce.Auth.Services
         }
 
         /// <summary>
-        /// Implementation of <see cref="IAuthenticationService.SignIn(string, string, bool)"/>
+        /// Implementation of <see cref="Interfaces.IAuthenticationService.SignIn(string, string, bool)"/>
         /// </summary>
         /// <param name="email"></param>
         /// <param name="password"></param>
@@ -69,6 +71,8 @@ namespace Wilcommerce.Auth.Services
                 var signin = await SignInManager.PasswordSignInAsync(user, password, isPersistent, false);
                 if (signin.Succeeded)
                 {
+                    await AddCustomClaimsForUser(user, isPersistent);
+
                     var @event = new UserSignedInEvent(user.Id, user.Email);
                     EventBus.RaiseEvent(@event);
                 }
@@ -82,7 +86,7 @@ namespace Wilcommerce.Auth.Services
         }
 
         /// <summary>
-        /// Implementation of <see cref="IAuthenticationService.SignOut()"/>
+        /// Implementation of <see cref="Interfaces.IAuthenticationService.SignOut()"/>
         /// </summary>
         /// <returns></returns>
         public virtual Task SignOut()
@@ -96,5 +100,28 @@ namespace Wilcommerce.Auth.Services
                 throw;
             }
         }
+
+        #region Private methods
+        /// <summary>
+        /// Add custom claims for the specified user
+        /// </summary>
+        /// <param name="user">The current user</param>
+        /// <param name="isPersistent">Whether the authentication is persistent</param>
+        /// <returns></returns>
+        protected virtual async Task AddCustomClaimsForUser(User user, bool isPersistent)
+        {
+            var claimsPrincipal = await SignInManager.CreateUserPrincipalAsync(user);
+            var claimsIdentity = claimsPrincipal.Identity as ClaimsIdentity;
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
+
+            await SignInManager.Context.SignOutAsync();
+            await SignInManager.Context.SignInAsync(
+                IdentityConstants.ApplicationScheme, 
+                claimsPrincipal, 
+                new AuthenticationProperties { IsPersistent = isPersistent });
+        }
+        #endregion
     }
 }
