@@ -64,7 +64,8 @@ namespace Wilcommerce.Auth.Services
                 var signin = await SignInManager.PasswordSignInAsync(user, password, isPersistent, false);
                 if (signin.Succeeded)
                 {
-                    await AddCustomClaimsForUser(user, isPersistent);
+                    var claimsPrincipal = await AddCustomClaimsForUser(user);
+                    await RefreshAuthenticationWithClaimsPrincipal(claimsPrincipal, isPersistent);
 
                     var @event = new UserSignedInEvent(user.Id, user.Email);
                     EventBus.RaiseEvent(@event);
@@ -94,14 +95,13 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        #region Private methods
+        #region Protected methods
         /// <summary>
         /// Add custom claims for the specified user
         /// </summary>
         /// <param name="user">The current user</param>
-        /// <param name="isPersistent">Whether the authentication is persistent</param>
-        /// <returns></returns>
-        protected virtual async Task AddCustomClaimsForUser(User user, bool isPersistent)
+        /// <returns>The claims principal for the authenticated user</returns>
+        protected virtual async Task<ClaimsPrincipal> AddCustomClaimsForUser(User user)
         {
             var claimsPrincipal = await SignInManager.CreateUserPrincipalAsync(user);
             var claimsIdentity = claimsPrincipal.Identity as ClaimsIdentity;
@@ -109,10 +109,21 @@ namespace Wilcommerce.Auth.Services
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
             claimsIdentity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
 
+            return claimsPrincipal;
+        }
+
+        /// <summary>
+        /// Refresh the authentication using the specified claims principal
+        /// </summary>
+        /// <param name="claimsPrincipal">The claims principal instance to perform authentication</param>
+        /// <param name="isPersistent">Whether the authentication is persistent</param>
+        /// <returns></returns>
+        protected virtual async Task RefreshAuthenticationWithClaimsPrincipal(ClaimsPrincipal claimsPrincipal, bool isPersistent)
+        {
             await SignInManager.Context.SignOutAsync();
             await SignInManager.Context.SignInAsync(
-                IdentityConstants.ApplicationScheme, 
-                claimsPrincipal, 
+                IdentityConstants.ApplicationScheme,
+                claimsPrincipal,
                 new AuthenticationProperties { IsPersistent = isPersistent });
         }
         #endregion
