@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
+using System.Threading.Tasks;
 using Wilcommerce.Auth.Events.User;
-using Wilcommerce.Auth.Repository;
+using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Commands.User.Handlers
 {
@@ -10,24 +12,24 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
     public class DisableUserCommandHandler : Interfaces.IDisableUserCommandHandler
     {
         /// <summary>
-        /// Get the  repository instance
+        /// Get the user manager instance
         /// </summary>
-        public IRepository Repository { get; }
+        public UserManager<Models.User> UserManager { get; }
 
         /// <summary>
         /// Get the event bus instance
         /// </summary>
-        public Core.Infrastructure.IEventBus EventBus { get; }
+        public IEventBus EventBus { get; }
 
         /// <summary>
         /// Construct the command handler
         /// </summary>
-        /// <param name="repository">The repository</param>
+        /// <param name="userManager">The user manager</param>
         /// <param name="eventBus">The event bus</param>
-        public DisableUserCommandHandler(IRepository repository, Core.Infrastructure.IEventBus eventBus)
+        public DisableUserCommandHandler(UserManager<Models.User> userManager, IEventBus eventBus)
         {
-            Repository = repository;
-            EventBus = eventBus;
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         /// <summary>
@@ -39,10 +41,14 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
         {
             try
             {
-                var user = await Repository.GetByKeyAsync<Models.User>(command.UserId);
+                var user = await UserManager.FindByIdAsync(command.UserId.ToString());
                 user.Disable();
 
-                await Repository.SaveChangesAsync();
+                var result = await UserManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new ApplicationException("Error while disabling the user");
+                }
 
                 var @event = new UserDisabledEvent(user.Id);
                 EventBus.RaiseEvent(@event);

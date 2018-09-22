@@ -11,7 +11,7 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
     public class ResetPasswordCommandHandler : Interfaces.IResetPasswordCommandHandler
     {
         /// <summary>
-        /// Get the user's manager service
+        /// Get the user manager instance
         /// </summary>
         public UserManager<Models.User> UserManager { get; }
 
@@ -23,12 +23,12 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
         /// <summary>
         /// Construct the command handler
         /// </summary>
-        /// <param name="userManager">The user manager instance</param>
+        /// <param name="userManager">The user manager</param>
         /// <param name="eventBus">The event bus</param>
         public ResetPasswordCommandHandler(UserManager<Models.User> userManager, IEventBus eventBus)
         {
-            UserManager = userManager;
-            EventBus = eventBus;
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
         /// <summary>

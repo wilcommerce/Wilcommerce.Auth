@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Threading.Tasks;
 using Wilcommerce.Auth.Events.User;
-using Wilcommerce.Auth.Repository;
+using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Commands.User.Handlers
 {
@@ -11,23 +12,23 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
     public class EnableUserCommandHandler : Interfaces.IEnableUserCommandHandler
     {
         /// <summary>
-        /// Get the repository instance
+        /// Get the user manager instance
         /// </summary>
-        public IRepository Repository { get; }
+        public UserManager<Models.User> UserManager { get; }
 
         /// <summary>
         /// Get the event bus instance
         /// </summary>
-        public Core.Infrastructure.IEventBus EventBus { get; }
+        public IEventBus EventBus { get; }
 
         /// <summary>
         /// Construct the command handler
         /// </summary>
-        /// <param name="repository">The repository</param>
+        /// <param name="userManager">The user manager</param>
         /// <param name="eventBus">The event bus</param>
-        public EnableUserCommandHandler(IRepository repository, Core.Infrastructure.IEventBus eventBus)
+        public EnableUserCommandHandler(UserManager<Models.User> userManager, IEventBus eventBus)
         {
-            Repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
@@ -40,10 +41,14 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
         {
             try
             {
-                var user = await Repository.GetByKeyAsync<Models.User>(command.UserId);
+                var user = await UserManager.FindByIdAsync(command.UserId.ToString());
                 user.Enable();
 
-                await Repository.SaveChangesAsync();
+                var result = await UserManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new ApplicationException("Error while enabling the user");
+                }
 
                 var @event = new UserEnabledEvent(user.Id);
                 EventBus.RaiseEvent(@event);
