@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading.Tasks;
+using Wilcommerce.Auth.Events.User;
 using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Commands.User.Handlers
@@ -56,6 +57,9 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                 {
                     throw new ApplicationException("Error while changing the user's info");
                 }
+
+                var @event = new UserInfoChangedEvent(command.UserId, command.Name, command.ProfileImage);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {

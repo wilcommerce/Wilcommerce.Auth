@@ -10,7 +10,9 @@ namespace Wilcommerce.Auth.Events.User.Handlers
         IHandleEvent<UserSignedInEvent>,
         IHandleEvent<NewAdministratorCreatedEvent>,
         IHandleEvent<UserEnabledEvent>,
-        IHandleEvent<UserDisabledEvent>
+        IHandleEvent<UserDisabledEvent>,
+        IHandleEvent<UserInfoChangedEvent>,
+        IHandleEvent<UserPasswordResetEvent>
     {
         /// <summary>
         /// Get the event store
@@ -79,6 +81,38 @@ namespace Wilcommerce.Auth.Events.User.Handlers
         /// </summary>
         /// <param name="event"></param>
         public void Handle(UserEnabledEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(UserInfoChangedEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(UserPasswordResetEvent @event)
         {
             try
             {

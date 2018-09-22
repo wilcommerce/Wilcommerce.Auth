@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using System.Threading.Tasks;
+using Wilcommerce.Auth.Events.User;
 using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Commands.User.Handlers
@@ -47,6 +48,9 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                 {
                     throw new ApplicationException("There was an error resetting the user password");
                 }
+
+                var @event = new UserPasswordResetEvent(command.UserId);
+                EventBus.RaiseEvent(@event);
             }
             catch 
             {
