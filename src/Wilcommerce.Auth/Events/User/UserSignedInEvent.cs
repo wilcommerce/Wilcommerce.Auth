@@ -19,7 +19,7 @@ namespace Wilcommerce.Auth.Events.User
         /// <param name="userId">The user id</param>
         /// <param name="username">The username</param>
         public UserSignedInEvent(Guid userId, string username)
-            : base(userId, typeof(Core.Common.Domain.Models.User))
+            : base(userId, typeof(Models.User))
         {
             Username = username;
         }

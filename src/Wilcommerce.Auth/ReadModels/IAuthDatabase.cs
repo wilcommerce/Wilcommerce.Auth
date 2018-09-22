@@ -9,8 +9,8 @@ namespace Wilcommerce.Auth.ReadModels
     public interface IAuthDatabase
     {
         /// <summary>
-        /// Get the tokens created by the platform
+        /// Get the users list
         /// </summary>
-        IQueryable<UserToken> Tokens { get; }
+        IQueryable<User> Users { get; }
     }
 }

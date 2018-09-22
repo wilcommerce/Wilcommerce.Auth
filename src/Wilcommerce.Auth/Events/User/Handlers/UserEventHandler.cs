@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Linq;
-using Wilcommerce.Auth.Services.Interfaces;
-using Wilcommerce.Core.Common.Domain.ReadModels;
+﻿using System;
 using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Events.User.Handlers
@@ -13,8 +8,11 @@ namespace Wilcommerce.Auth.Events.User.Handlers
     /// </summary>
     public class UserEventHandler : 
         IHandleEvent<UserSignedInEvent>,
-        IHandleEvent<PasswordRecoveryRequestedEvent>,
-        IHandleEvent<PasswordRecoveryValidatedEvent>
+        IHandleEvent<NewAdministratorCreatedEvent>,
+        IHandleEvent<UserEnabledEvent>,
+        IHandleEvent<UserDisabledEvent>,
+        IHandleEvent<UserInfoChangedEvent>,
+        IHandleEvent<UserPasswordResetEvent>
     {
         /// <summary>
         /// Get the event store
@@ -22,41 +20,18 @@ namespace Wilcommerce.Auth.Events.User.Handlers
         public IEventStore EventStore { get; }
 
         /// <summary>
-        /// Get the identity factory
-        /// </summary>
-        public IIdentityFactory IdentityFactory { get; }
-
-        /// <summary>
-        /// Get the database of the common context
-        /// </summary>
-        public ICommonDatabase CommonDatabase { get; }
-
-        /// <summary>
-        /// Get the http context
-        /// </summary>
-        public HttpContext Context { get; }
-
-        /// <summary>
         /// Construct the event handler
         /// </summary>
         /// <param name="eventStore">The event store instance</param>
-        /// <param name="identityFactory">The identity factory instance</param>
-        /// <param name="commonDatabase">The common database instance</param>
-        /// <param name="httpContextAccessor">The http context accessor instance</param>
-        public UserEventHandler(IEventStore eventStore, IIdentityFactory identityFactory, ICommonDatabase commonDatabase, IHttpContextAccessor httpContextAccessor)
+        public UserEventHandler(IEventStore eventStore)
         {
-            if (httpContextAccessor == null)
-            {
-                throw new ArgumentNullException(nameof(httpContextAccessor));
-            }
-
             EventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
-            IdentityFactory = identityFactory ?? throw new ArgumentNullException(nameof(identityFactory));
-            CommonDatabase = commonDatabase ?? throw new ArgumentNullException(nameof(commonDatabase));
-            Context = httpContextAccessor.HttpContext;
         }
 
-        /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
         public void Handle(UserSignedInEvent @event)
         {
             try
@@ -69,8 +44,11 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             }
         }
 
-        /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
-        public void Handle(PasswordRecoveryRequestedEvent @event)
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(NewAdministratorCreatedEvent @event)
         {
             try
             {
@@ -82,23 +60,63 @@ namespace Wilcommerce.Auth.Events.User.Handlers
             }
         }
 
-        /// <see cref="IHandleEvent{TEvent}.Handle(TEvent)"/>
-        public void Handle(PasswordRecoveryValidatedEvent @event)
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(UserDisabledEvent @event)
         {
             try
             {
                 EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
-                var user = CommonDatabase.Users
-                    .FirstOrDefault(u => u.Id == @event.AggregateId);
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(UserEnabledEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
-                if (user == null)
-                {
-                    throw new Exception("User not found");
-                }
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(UserInfoChangedEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
-                var principal = IdentityFactory.CreateIdentity(user);
-                Context.SignInAsync(AuthenticationDefaults.AuthenticationScheme, principal);
+        /// <summary>
+        /// <see cref="IHandleEvent{TEvent}"/>
+        /// </summary>
+        /// <param name="event"></param>
+        public void Handle(UserPasswordResetEvent @event)
+        {
+            try
+            {
+                EventStore.Save(@event);
             }
             catch
             {

@@ -1,4 +1,5 @@
-﻿using Wilcommerce.Core.Common.Domain.Models;
+﻿using System.Threading.Tasks;
+using Wilcommerce.Auth.Models;
 
 namespace Wilcommerce.Auth.Services.Interfaces
 {
@@ -8,10 +9,17 @@ namespace Wilcommerce.Auth.Services.Interfaces
     public interface ITokenGenerator
     {
         /// <summary>
-        /// Generate a token string for the specified user
+        /// Generate an email confirmation token string for the specified user
         /// </summary>
         /// <param name="user">The current user</param>
         /// <returns>The token string</returns>
-        string GenerateForUser(User user);
+        Task<string> GenerateEmailConfirmationTokenForUser(User user);
+
+        /// <summary>
+        /// Generate a password recovery token string for the specified user
+        /// </summary>
+        /// <param name="user">The current user</param>
+        /// <returns>The token string</returns>
+        Task<string> GeneratePasswordRecoveryTokenForUser(User user);
     }
 }
