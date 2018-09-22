@@ -1,58 +1,26 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Wilcommerce.Core.Common.Domain.Models;
-using Wilcommerce.Core.Common.Domain.ReadModels;
 using Microsoft.AspNetCore.Identity;
 using Wilcommerce.Auth.Services.Interfaces;
-using Wilcommerce.Auth.Commands.Handlers.Interfaces;
-using Wilcommerce.Auth.Commands;
 using Wilcommerce.Core.Infrastructure;
 using Wilcommerce.Auth.Events.User;
-using Microsoft.AspNetCore.Http;
+using Wilcommerce.Auth.ReadModels;
+using Wilcommerce.Auth.Models;
 using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace Wilcommerce.Auth.Services
 {
     /// <summary>
-    /// Implementation of <see cref="Interfaces.IAuthenticationService"/>
+    /// Implementation of <see cref="IAuthenticationService"/>
     /// </summary>
     public class AuthenticationService : Interfaces.IAuthenticationService
     {
         /// <summary>
-        /// Get the http context
-        /// </summary>
-        public HttpContext Context { get; }
-
-        /// <summary>
         /// Get the common context database
         /// </summary>
-        public ICommonDatabase CommonDatabase { get; }
-
-        /// <summary>
-        /// Get the password hasher service
-        /// </summary>
-        public IPasswordHasher<User> PasswordHasher { get; }
-
-        /// <summary>
-        /// Get the token generator service
-        /// </summary>
-        public ITokenGenerator TokenGenerator { get; }
-
-        /// <summary>
-        /// Get the identity factory
-        /// </summary>
-        public IIdentityFactory IdentityFactory { get; }
-
-        /// <summary>
-        /// Get the password recovery handler
-        /// </summary>
-        public IRecoverPasswordCommandHandler RecoverPasswordHandler { get; }
-
-        /// <summary>
-        /// Get the password recovery validation handler
-        /// </summary>
-        public IValidatePasswordRecoveryCommandHandler ValidatePasswordRecoveryHandler { get; }
+        public IAuthDatabase AuthDatabase { get; }
 
         /// <summary>
         /// Get the event bus
@@ -60,60 +28,48 @@ namespace Wilcommerce.Auth.Services
         public IEventBus EventBus { get; }
 
         /// <summary>
+        /// Get the signin manager instance
+        /// </summary>
+        public SignInManager<User> SignInManager { get; }
+
+        /// <summary>
         /// Construct the authentication service
         /// </summary>
-        /// <param name="httpContextAccessor">The http context accessor instance</param>
-        /// <param name="commonDatabase">The common database instance</param>
-        /// <param name="passwordHasher">The password hasher instance</param>
-        /// <param name="tokenGenerator">The token generator instance</param>
-        /// <param name="recoverPasswordHandler">The password recover handler instance</param>
-        /// <param name="validatePasswordRecoveryHandler">The password recovery validation handler instance</param>
+        /// <param name="authDatabase">The common database instance</param>
         /// <param name="eventBus">The event bus instance</param>
-        /// <param name="identityFactory">The identity factory instance</param>
-        public AuthenticationService(IHttpContextAccessor httpContextAccessor, ICommonDatabase commonDatabase, IPasswordHasher<User> passwordHasher, ITokenGenerator tokenGenerator, IRecoverPasswordCommandHandler recoverPasswordHandler, IValidatePasswordRecoveryCommandHandler validatePasswordRecoveryHandler, IEventBus eventBus, IIdentityFactory identityFactory)
+        /// <param name="signInManager"></param>
+        public AuthenticationService(IAuthDatabase authDatabase, IEventBus eventBus, SignInManager<User> signInManager)
         {
-            if (httpContextAccessor == null)
-            {
-                throw new ArgumentNullException(nameof(httpContextAccessor));
-            }
-
-            Context = httpContextAccessor.HttpContext;
-            CommonDatabase = commonDatabase ?? throw new ArgumentNullException(nameof(commonDatabase));
-            PasswordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
-            TokenGenerator = tokenGenerator ?? throw new ArgumentNullException(nameof(tokenGenerator));
-            RecoverPasswordHandler = recoverPasswordHandler ?? throw new ArgumentNullException(nameof(recoverPasswordHandler));
-            ValidatePasswordRecoveryHandler = validatePasswordRecoveryHandler ?? throw new ArgumentNullException(nameof(validatePasswordRecoveryHandler));
+            AuthDatabase = authDatabase ?? throw new ArgumentNullException(nameof(authDatabase));
             EventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-            IdentityFactory = identityFactory ?? throw new ArgumentNullException(nameof(identityFactory));
+            SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         }
 
-        /// <see cref="Interfaces.IAuthenticationService.SignIn(string, string, bool)"/>
-        public Task SignIn(string email, string password, bool isPersistent)
+        /// <summary>
+        /// Implementation of <see cref="Interfaces.IAuthenticationService.SignIn(string, string, bool)"/>
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <param name="isPersistent"></param>
+        /// <returns></returns>
+        public virtual async Task<SignInResult> SignIn(string email, string password, bool isPersistent)
         {
             try
             {
-                var user = CommonDatabase.Users
-                    .Where(u => u.IsActive && u.DisabledOn == null)
-                    .FirstOrDefault(u => u.Email == email);
+                var user = AuthDatabase.Users
+                    .Actives()
+                    .WithUsername(email)
+                    .Single();
 
-                if (user == null)
+                var signin = await SignInManager.PasswordSignInAsync(user, password, isPersistent, false);
+                if (signin.Succeeded)
                 {
-                    throw new InvalidOperationException($"User {email} not found");
+                    var claimsPrincipal = await AddCustomClaimsForUser(user);
+                    await RefreshAuthenticationWithClaimsPrincipal(claimsPrincipal, isPersistent);
+
+                    var @event = new UserSignedInEvent(user.Id, user.Email);
+                    EventBus.RaiseEvent(@event);
                 }
-
-                if (!IsPasswordValid(user, password))
-                {
-                    throw new InvalidOperationException("Bad credentials");
-                }
-
-                var principal = IdentityFactory.CreateIdentity(user);
-                var signin = Context.SignInAsync(
-                    AuthenticationDefaults.AuthenticationScheme, 
-                    principal, 
-                    new AuthenticationProperties { IsPersistent = isPersistent });
-
-                var @event = new UserSignedInEvent(user.Id, user.Email);
-                EventBus.RaiseEvent(@event);
 
                 return signin;
             }
@@ -123,49 +79,15 @@ namespace Wilcommerce.Auth.Services
             }
         }
 
-        /// <see cref="Interfaces.IAuthenticationService.SignOut"/>
-        public Task SignOut()
+        /// <summary>
+        /// Implementation of <see cref="Interfaces.IAuthenticationService.SignOut()"/>
+        /// </summary>
+        /// <returns></returns>
+        public virtual Task SignOut()
         {
             try
             {
-                return Context.SignOutAsync(AuthenticationDefaults.AuthenticationScheme);
-            }
-            catch 
-            {
-                throw;
-            }
-        }
-
-        /// <see cref="Interfaces.IAuthenticationService.RecoverPassword(string)"/>
-        public Task RecoverPassword(string email)
-        {
-            try
-            {
-                var user = CommonDatabase.Users
-                    .Where(u => u.IsActive && u.DisabledOn == null)
-                    .FirstOrDefault(u => u.Email == email);
-
-                if (user == null)
-                {
-                    throw new InvalidOperationException($"User {email} not found");
-                }
-
-                var command = new RecoverPasswordCommand(user, TokenGenerator.GenerateForUser(user));
-                return RecoverPasswordHandler.Handle(command);
-            }
-            catch 
-            {
-                throw;
-            }
-        }
-
-        /// <see cref="Interfaces.IAuthenticationService.ValidatePasswordRecovery(string)"/>
-        public Task ValidatePasswordRecovery(string token)
-        {
-            try
-            {
-                var command = new ValidatePasswordRecoveryCommand(token);
-                return ValidatePasswordRecoveryHandler.Handle(command);
+                return SignInManager.SignOutAsync();
             }
             catch 
             {
@@ -175,22 +97,34 @@ namespace Wilcommerce.Auth.Services
 
         #region Protected methods
         /// <summary>
-        /// Check whether the password is valid
+        /// Add custom claims for the specified user
         /// </summary>
-        /// <param name="user">The user instance</param>
-        /// <param name="password">The password to check</param>
-        /// <returns>true if the password is valid, false otherwise</returns>
-        protected virtual bool IsPasswordValid(User user, string password)
+        /// <param name="user">The current user</param>
+        /// <returns>The claims principal for the authenticated user</returns>
+        protected virtual async Task<ClaimsPrincipal> AddCustomClaimsForUser(User user)
         {
-            try
-            {
-                var result = PasswordHasher.VerifyHashedPassword(user, user.Password, password);
-                return result != PasswordVerificationResult.Failed;
-            }
-            catch 
-            {
-                throw;
-            }
+            var claimsPrincipal = await SignInManager.CreateUserPrincipalAsync(user);
+            var claimsIdentity = claimsPrincipal.Identity as ClaimsIdentity;
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.GivenName, user.Name));
+
+            return claimsPrincipal;
+        }
+
+        /// <summary>
+        /// Refresh the authentication using the specified claims principal
+        /// </summary>
+        /// <param name="claimsPrincipal">The claims principal instance to perform authentication</param>
+        /// <param name="isPersistent">Whether the authentication is persistent</param>
+        /// <returns></returns>
+        protected virtual async Task RefreshAuthenticationWithClaimsPrincipal(ClaimsPrincipal claimsPrincipal, bool isPersistent)
+        {
+            await SignInManager.Context.SignOutAsync();
+            await SignInManager.Context.SignInAsync(
+                IdentityConstants.ApplicationScheme,
+                claimsPrincipal,
+                new AuthenticationProperties { IsPersistent = isPersistent });
         }
         #endregion
     }

@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Text;
 using Wilcommerce.Auth.Services.Interfaces;
-using Wilcommerce.Core.Common.Domain.Models;
+using Wilcommerce.Auth.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace Wilcommerce.Auth.Services
 {
@@ -10,13 +11,54 @@ namespace Wilcommerce.Auth.Services
     /// </summary>
     public class TokenGenerator : ITokenGenerator
     {
-        /// <see cref="ITokenGenerator.GenerateForUser(User)"/>
-        public string GenerateForUser(User user)
+        private readonly UserManager<User> _userManager;
+
+        /// <summary>
+        /// Construct the token generator class
+        /// </summary>
+        /// <param name="userManager">The identity user manager</param>
+        public TokenGenerator(UserManager<User> userManager)
+        {
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        }
+
+        /// <summary>
+        /// Implementation of <see cref="ITokenGenerator.GenerateEmailConfirmationTokenForUser(User)"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public virtual async Task<string> GenerateEmailConfirmationTokenForUser(User user)
         {
             try
             {
-                var tokenBytes = Encoding.UTF8.GetBytes($"{user.Email}{Guid.NewGuid().ToString("N")}");
-                return Convert.ToBase64String(tokenBytes);
+                if (user == null)
+                {
+                    throw new ArgumentNullException(nameof(user));
+                }
+
+                return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            }
+            catch 
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Implementation of <see cref="ITokenGenerator.GeneratePasswordRecoveryTokenForUser(User)"/>
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public virtual async Task<string> GeneratePasswordRecoveryTokenForUser(User user)
+        {
+            try
+            {
+                if (user == null)
+                {
+                    throw new ArgumentNullException(nameof(user));
+                }
+
+                return await _userManager.GeneratePasswordResetTokenAsync(user);
             }
             catch 
             {
