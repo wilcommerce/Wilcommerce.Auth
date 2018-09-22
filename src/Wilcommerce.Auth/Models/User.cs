@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
-using Wilcommerce.Core.Common.Domain.Models;
+using Wilcommerce.Core.Common.Models;
 using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Models
