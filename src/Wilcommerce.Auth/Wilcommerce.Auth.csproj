@@ -29,6 +29,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Commands\User\Handlers\CreateNewAdministratorCommandHandler.cs~RF25c1b0bf.TMP" />
     <None Remove="Events\User\PasswordRecoveryValidatedEvent.cs~RF294eef59.TMP" />
   </ItemGroup>
 
