@@ -50,7 +50,7 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                     throw new ApplicationException("Error while disabling the user");
                 }
 
-                var @event = new UserDisabledEvent(user.Id);
+                var @event = new UserDisabledEvent(Guid.Parse(user.Id));
                 EventBus.RaiseEvent(@event);
             }
             catch

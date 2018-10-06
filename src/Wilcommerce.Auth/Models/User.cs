@@ -1,20 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
 using Wilcommerce.Core.Common.Models;
-using Wilcommerce.Core.Infrastructure;
 
 namespace Wilcommerce.Auth.Models
 {
     /// <summary>
     /// Represents the user
     /// </summary>
-    public class User : IdentityUser, IAggregateRoot
+    public class User : IdentityUser
     {
-        /// <summary>
-        /// Get the user's id in Guid format
-        /// </summary>
-        public new Guid Id => Guid.Parse(base.Id);
-
         #region Constructor
         /// <summary>
         /// Construct the user

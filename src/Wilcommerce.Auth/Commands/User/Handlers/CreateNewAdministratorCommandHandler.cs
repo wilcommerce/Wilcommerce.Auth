@@ -58,7 +58,7 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                 var role = await RoleFactory.Administrator();
                 await UserManager.AddToRoleAsync(administrator, role.Name);
 
-                var @event = new NewAdministratorCreatedEvent(administrator.Id, administrator.Name, administrator.Email);
+                var @event = new NewAdministratorCreatedEvent(Guid.Parse(administrator.Id), administrator.Name, administrator.Email);
                 EventBus.RaiseEvent(@event);
             }
             catch

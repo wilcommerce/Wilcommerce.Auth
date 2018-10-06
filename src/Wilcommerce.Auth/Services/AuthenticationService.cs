@@ -67,7 +67,7 @@ namespace Wilcommerce.Auth.Services
                     var claimsPrincipal = await AddCustomClaimsForUser(user);
                     await RefreshAuthenticationWithClaimsPrincipal(claimsPrincipal, isPersistent);
 
-                    var @event = new UserSignedInEvent(user.Id, user.Email);
+                    var @event = new UserSignedInEvent(Guid.Parse(user.Id), user.Email);
                     EventBus.RaiseEvent(@event);
                 }
 

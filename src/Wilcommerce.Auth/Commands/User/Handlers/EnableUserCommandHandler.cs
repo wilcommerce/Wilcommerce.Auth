@@ -50,7 +50,7 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                     throw new ApplicationException("Error while enabling the user");
                 }
 
-                var @event = new UserEnabledEvent(user.Id);
+                var @event = new UserEnabledEvent(Guid.Parse(user.Id));
                 EventBus.RaiseEvent(@event);
             }
             catch 
