@@ -15,7 +15,7 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <Version>1.0.0-rc6</Version>
+    <Version>1.0.0-rc7</Version>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Description>Wilcommerce Authentication and Authorization library</Description>
   </PropertyGroup>
