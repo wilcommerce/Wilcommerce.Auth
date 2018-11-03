@@ -27,7 +27,7 @@ namespace Wilcommerce.Auth.Services
         /// <returns></returns>
         public virtual async Task<IdentityRole> Administrator()
         {
-            return await CreateRoleIfNotExists(AuthenticationDefaults.CustomerRole);
+            return await CreateRoleIfNotExists(AuthenticationDefaults.AdministratorRole);
         }
 
         /// <summary>
@@ -50,7 +50,8 @@ namespace Wilcommerce.Auth.Services
             var role = await _roleManager.FindByNameAsync(roleName);
             if (role == null)
             {
-                return new IdentityRole(roleName);
+                role = new IdentityRole(roleName);
+                await _roleManager.CreateAsync(role);
             }
 
             return role;
