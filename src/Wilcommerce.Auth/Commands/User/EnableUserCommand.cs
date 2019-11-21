@@ -19,7 +19,7 @@ namespace Wilcommerce.Auth.Commands.User
         /// <param name="userId">The user id</param>
         public EnableUserCommand(Guid userId)
         {
-            UserId = UserId;
+            UserId = userId;
         }
     }
 }
