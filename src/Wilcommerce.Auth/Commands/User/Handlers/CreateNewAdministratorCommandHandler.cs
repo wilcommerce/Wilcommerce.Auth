@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Wilcommerce.Auth.Events.User;
 using Wilcommerce.Auth.Services.Interfaces;
@@ -52,7 +53,7 @@ namespace Wilcommerce.Auth.Commands.User.Handlers
                 var result = await UserManager.CreateAsync(administrator, command.Password);
                 if (!result.Succeeded)
                 {
-                    throw new InvalidOperationException(string.Join(",", result.Errors));
+                    throw new InvalidOperationException(string.Join(",", result.Errors.Select(e => e.Description).ToArray()));
                 }
 
                 var role = await RoleFactory.Administrator();
