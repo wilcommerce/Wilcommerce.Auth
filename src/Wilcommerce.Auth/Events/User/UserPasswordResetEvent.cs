@@ -22,5 +22,14 @@ namespace Wilcommerce.Auth.Events.User
         {
             UserId = userId;
         }
+
+        /// <summary>
+        /// Convert the event to string
+        /// </summary>
+        /// <returns>The converted string</returns>
+        public override string ToString()
+        {
+            return $"User {UserId} password reset.";
+        }
     }
 }

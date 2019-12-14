@@ -18,6 +18,11 @@ namespace Wilcommerce.Auth
         /// <returns>The user's full name</returns>
         public static string GetUserFullName(this UserManager<User> userManager, ClaimsPrincipal principal)
         {
+            if (userManager == null)
+            {
+                throw new ArgumentNullException(nameof(userManager));
+            }
+
             if (principal == null)
             {
                 throw new ArgumentNullException(nameof(principal));

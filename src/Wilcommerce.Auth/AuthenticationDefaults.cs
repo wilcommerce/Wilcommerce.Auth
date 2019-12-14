@@ -10,26 +10,26 @@ namespace Wilcommerce.Auth
         /// <summary>
         /// Get the Authentication scheme used
         /// </summary>
-        public static string AuthenticationScheme => CookieAuthenticationDefaults.AuthenticationScheme;
+        public const string AuthenticationScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 
         /// <summary>
         /// Get the string representing the customer role
         /// </summary>
-        public static string CustomerRole => "Customer";
+        public const string CustomerRole = "Customer";
 
         /// <summary>
         /// Get the string representing the administrator role
         /// </summary>
-        public static string AdministratorRole => "Administrator";
+        public const string AdministratorRole = "Administrator";
 
         /// <summary>
         /// Get the cookie prefix
         /// </summary>
-        public static string CookiePrefix => ".Wilcommerce.";
+        public const string CookiePrefix = ".Wilcommerce.";
 
         /// <summary>
         /// Get the number of days after which expires the generated tokens
         /// </summary>
-        public static int ExpirationDays => 1;
+        public const int ExpirationDays = 1;
     }
 }

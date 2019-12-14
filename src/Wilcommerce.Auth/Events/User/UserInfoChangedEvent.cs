@@ -37,5 +37,14 @@ namespace Wilcommerce.Auth.Events.User
             Name = name;
             ProfileImage = profileImage;
         }
+
+        /// <summary>
+        /// Convert the event to string
+        /// </summary>
+        /// <returns>The converted string</returns>
+        public override string ToString()
+        {
+            return $"User {UserId} info changed. New name is {Name}";
+        }
     }
 }

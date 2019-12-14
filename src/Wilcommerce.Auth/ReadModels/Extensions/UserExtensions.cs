@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Wilcommerce.Auth.Models;
 
 namespace Wilcommerce.Auth.ReadModels
@@ -15,6 +16,11 @@ namespace Wilcommerce.Auth.ReadModels
         /// <returns>A list of users</returns>
         public static IQueryable<User> Actives(this IQueryable<User> users)
         {
+            if (users == null)
+            {
+                throw new ArgumentNullException(nameof(users));
+            }
+
             return from u in users
                    where u.IsActive && u.DisabledOn == null
                    select u;
@@ -28,6 +34,11 @@ namespace Wilcommerce.Auth.ReadModels
         /// <returns>A list of users</returns>
         public static IQueryable<User> WithUsername(this IQueryable<User> users, string username)
         {
+            if (users == null)
+            {
+                throw new ArgumentNullException(nameof(users));
+            }
+
             return from u in users
                    where u.UserName == username
                    select u;

@@ -43,7 +43,7 @@ namespace Wilcommerce.Auth.Events.User
         /// <returns>The converted string</returns>
         public override string ToString()
         {
-            return $"{FiredOn} - The administrator {Name}, {Email} [{AdministratorId}] was created";
+            return $"The administrator {Name}, {Email} [{AdministratorId}] was created";
         }
     }
 }
